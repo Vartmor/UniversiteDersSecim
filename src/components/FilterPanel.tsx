@@ -83,7 +83,7 @@ export function FilterPanel() {
 
     return (
         <div className="h-full flex flex-col">
-            <div className="p-3 border-b border-border flex items-center justify-between">
+            <div className="p-4 border-b border-border flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
                     Filtreler
                 </h2>
