@@ -265,7 +265,7 @@ export function WeeklySchedule() {
                                 {TIME_SLOTS.map((slot) => (
                                     <div
                                         key={slot.id}
-                                        className="text-xs text-text-secondary pr-2 flex flex-col justify-center"
+                                        className={`text-xs text-text-secondary pr-2 flex flex-col justify-center rounded-l ${slot.id === 5 ? 'bg-gray-100/70' : ''}`}
                                         style={{ height: `${SLOT_HEIGHT}px` }}
                                     >
                                         <div className="font-medium">
@@ -346,8 +346,8 @@ export function WeeklySchedule() {
                                         {TIME_SLOTS.map((slot, i) => (
                                             <div
                                                 key={slot.id}
-                                                className="absolute w-full border-t border-gray-100 pointer-events-none"
-                                                style={{ top: `${i * SLOT_HEIGHT}px` }}
+                                                className={`absolute w-full border-t border-gray-100 pointer-events-none ${slot.id === 5 ? 'bg-gray-100/70' : ''}`}
+                                                style={{ top: `${i * SLOT_HEIGHT}px`, height: `${SLOT_HEIGHT}px` }}
                                             />
                                         ))}
 
