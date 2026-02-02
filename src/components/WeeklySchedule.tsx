@@ -637,7 +637,7 @@ export function WeeklySchedule() {
                             {DAY_SHORT_NAMES[quickAddInfo.day]} {formatMinutesToTime(TIME_SLOTS[quickAddInfo.slotIndex].startMinute)}
                         </p>
                         <div className="text-xs text-text-secondary mb-2">Şube seçin:</div>
-                        <div className="space-y-1 max-h-[150px] overflow-y-auto">
+                        <div className="space-y-1 max-h-[200px] overflow-y-auto">
                             {selectedCourseFromStore.sections.map(section => (
                                 <button
                                     key={section.id}
