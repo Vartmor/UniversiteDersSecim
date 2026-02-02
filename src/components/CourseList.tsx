@@ -525,42 +525,28 @@ export function CourseList() {
                                                     {/* Add Meeting */}
                                                     {isAddingMeeting === section.id ? (
                                                         <div className="mt-2 p-2 bg-white rounded border border-border">
-                                                            <div>
-                                                                <label className="text-xs text-text-secondary block mb-1">Gün</label>
-                                                                <Select
-                                                                    options={Object.entries(DAY_NAMES).map(([value, label]) => ({ value, label }))}
-                                                                    value={meetingForm.day}
-                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, day: e.target.value as DayOfWeek })}
-                                                                />
-                                                            </div>
-                                                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            <div className="grid grid-cols-2 gap-2">
                                                                 <div>
-                                                                    <label className="text-xs text-text-secondary block mb-1">Başlangıç</label>
+                                                                    <label className="text-xs text-text-secondary block mb-1">Gün</label>
                                                                     <Select
-                                                                        options={TIME_SLOTS.map(slot => ({
-                                                                            value: slot.startMinute.toString(),
-                                                                            label: formatMinutesToTime(slot.startMinute),
-                                                                        }))}
-                                                                        value={meetingForm.startMinute.toString()}
-                                                                        onChange={(e) => {
-                                                                            const newStart = parseInt(e.target.value);
-                                                                            const validEndSlot = TIME_SLOTS.find(s => s.endMinute > newStart);
-                                                                            const newEnd = validEndSlot ? validEndSlot.endMinute : newStart + 50;
-                                                                            setMeetingForm({ ...meetingForm, startMinute: newStart, endMinute: newEnd });
-                                                                        }}
+                                                                        options={Object.entries(DAY_NAMES).map(([value, label]) => ({ value, label }))}
+                                                                        value={meetingForm.day}
+                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, day: e.target.value as DayOfWeek })}
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <label className="text-xs text-text-secondary block mb-1">Bitiş</label>
+                                                                    <label className="text-xs text-text-secondary block mb-1">Slot</label>
                                                                     <Select
-                                                                        options={TIME_SLOTS
-                                                                            .filter(slot => slot.endMinute > meetingForm.startMinute)
-                                                                            .map(slot => ({
-                                                                                value: slot.endMinute.toString(),
-                                                                                label: formatMinutesToTime(slot.endMinute),
-                                                                            }))}
-                                                                        value={meetingForm.endMinute.toString()}
-                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, endMinute: parseInt(e.target.value) })}
+                                                                        options={TIME_SLOTS.map(slot => ({
+                                                                            value: slot.startMinute.toString(),
+                                                                            label: `${formatMinutesToTime(slot.startMinute)}-${formatMinutesToTime(slot.endMinute)}`,
+                                                                        }))}
+                                                                        value={meetingForm.startMinute.toString()}
+                                                                        onChange={(e) => {
+                                                                            const startMin = parseInt(e.target.value);
+                                                                            const slot = TIME_SLOTS.find(s => s.startMinute === startMin);
+                                                                            setMeetingForm({ ...meetingForm, startMinute: startMin, endMinute: slot?.endMinute || startMin + 50 });
+                                                                        }}
                                                                     />
                                                                 </div>
                                                             </div>
