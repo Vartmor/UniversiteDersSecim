@@ -142,22 +142,41 @@ export function WeeklySchedule() {
         return { top: `${top}px`, height: `${height}px` };
     };
 
+    // Calculate total weekly minutes
+    const totalWeeklyMinutes = allMeetings.reduce((total, { meeting }) => {
+        return total + (meeting.endMinute - meeting.startMinute);
+    }, 0);
+    const totalHours = Math.floor(totalWeeklyMinutes / 60);
+    const totalMins = totalWeeklyMinutes % 60;
+
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Header */}
             <div className="p-4 border-b border-border">
-                <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    {selectedCourseFromStore ? `${selectedCourseFromStore.code} - Haftalık Program` : 'Haftalık Program'}
-                </h2>
-                {selectedCourseFromStore ? (
-                    <p className="text-xs text-text-secondary mt-0.5">
-                        {selectedCourseFromStore.name} • {selectedCourseFromStore.sections.length} şube
-                    </p>
-                ) : selectedSchedule ? (
-                    <p className="text-xs text-text-secondary mt-0.5">
-                        Seçili kombinasyon: Skor {selectedSchedule.score}
-                    </p>
-                ) : null}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+                            {selectedCourseFromStore ? `${selectedCourseFromStore.code} - Haftalık Program` : 'Haftalık Program'}
+                        </h2>
+                        {selectedCourseFromStore ? (
+                            <p className="text-xs text-text-secondary mt-0.5">
+                                {selectedCourseFromStore.name} • {selectedCourseFromStore.sections.length} şube
+                            </p>
+                        ) : selectedSchedule ? (
+                            <p className="text-xs text-text-secondary mt-0.5">
+                                Seçili kombinasyon: Skor {selectedSchedule.score}
+                            </p>
+                        ) : null}
+                    </div>
+                    {allMeetings.length > 0 && (
+                        <div className="bg-accent/10 px-3 py-1.5 rounded-full">
+                            <span className="text-sm font-semibold text-accent">
+                                {totalHours > 0 ? `${totalHours} saat` : ''}{totalMins > 0 ? ` ${totalMins} dk` : totalHours > 0 ? '' : '0 saat'}
+                            </span>
+                            <span className="text-xs text-text-secondary ml-1">toplam</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Schedule Grid */}
