@@ -13,12 +13,14 @@ export function CourseList() {
     const updateCourse = useStore((state) => state.updateCourse);
     const removeCourse = useStore((state) => state.removeCourse);
     const addSection = useStore((state) => state.addSection);
+    const updateSection = useStore((state) => state.updateSection);
     const removeSection = useStore((state) => state.removeSection);
     const addMeeting = useStore((state) => state.addMeeting);
 
     const [isAddingCourse, setIsAddingCourse] = useState(false);
     const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
     const [isAddingSection, setIsAddingSection] = useState<string | null>(null);
+    const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
     const [isAddingMeeting, setIsAddingMeeting] = useState<string | null>(null);
 
     // Form states
@@ -394,27 +396,75 @@ export function CourseList() {
                                         <div className="mt-3 space-y-2">
                                             {course.sections.map((section) => (
                                                 <div key={section.id} className="bg-bg-secondary rounded p-2 group">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-medium">{section.name}</span>
-                                                            {section.instructor && (
-                                                                <span className="text-xs text-text-secondary">{section.instructor}</span>
-                                                            )}
+                                                    {editingSectionId === section.id ? (
+                                                        // Edit form
+                                                        <div className="space-y-2">
+                                                            <div>
+                                                                <label className="text-xs text-text-secondary block mb-1">Şube Adı</label>
+                                                                <Input
+                                                                    placeholder="1. Şube"
+                                                                    value={sectionForm.name}
+                                                                    onChange={(e) => setSectionForm({ ...sectionForm, name: e.target.value })}
+                                                                    autoFocus
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-xs text-text-secondary block mb-1">Öğretim Görevlisi <span className="opacity-60">(opsiyonel)</span></label>
+                                                                <Input
+                                                                    placeholder="Dr. Ahmet Yılmaz"
+                                                                    value={sectionForm.instructor}
+                                                                    onChange={(e) => setSectionForm({ ...sectionForm, instructor: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <Button size="sm" onClick={() => {
+                                                                    updateSection(section.id, {
+                                                                        name: sectionForm.name,
+                                                                        instructor: sectionForm.instructor || undefined,
+                                                                    });
+                                                                    setEditingSectionId(null);
+                                                                }}>Kaydet</Button>
+                                                                <Button size="sm" variant="ghost" onClick={() => setEditingSectionId(null)}>İptal</Button>
+                                                            </div>
                                                         </div>
-                                                        <button
-                                                            onClick={() => {
-                                                                if (confirm(`"${section.name}" şubesini silmek istediğinizden emin misiniz?`)) {
-                                                                    removeSection(course.id, section.id);
-                                                                }
-                                                            }}
-                                                            className="p-1 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            title="Şubeyi sil"
-                                                        >
-                                                            <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
+                                                    ) : (
+                                                        // Normal view
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-medium">{section.name}</span>
+                                                                {section.instructor && (
+                                                                    <span className="text-xs text-text-secondary">{section.instructor}</span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSectionForm({ name: section.name, instructor: section.instructor || '' });
+                                                                        setEditingSectionId(section.id);
+                                                                    }}
+                                                                    className="p-1 hover:bg-blue-100 rounded"
+                                                                    title="Düzenle"
+                                                                >
+                                                                    <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (confirm(`"${section.name}" şubesini silmek istediğinizden emin misiniz?`)) {
+                                                                            removeSection(course.id, section.id);
+                                                                        }
+                                                                    }}
+                                                                    className="p-1 hover:bg-red-100 rounded"
+                                                                    title="Sil"
+                                                                >
+                                                                    <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                     {/* Meetings */}
                                                     <div className="mt-2 space-y-1">
                                                         {section.meetings.map((meeting) => (
