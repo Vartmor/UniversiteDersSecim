@@ -366,7 +366,7 @@ export function WeeklySchedule() {
                                                         onDragEnd={() => {
                                                             setDraggedMeeting(null);
                                                         }}
-                                                        className={`absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
+                                                        className={`group absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
                                                         style={{
                                                             ...getMeetingStyle(meeting),
                                                             width: layout.width,
@@ -396,6 +396,27 @@ export function WeeklySchedule() {
                                                             <div className="text-[10px] text-text-secondary truncate">
                                                                 {meeting.location}
                                                             </div>
+                                                        )}
+                                                        {/* Quick add button on hover */}
+                                                        {selectedCourseFromStore && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    const slotIndex = TIME_SLOTS.findIndex(s =>
+                                                                        meeting.startMinute >= s.startMinute && meeting.startMinute < s.endMinute
+                                                                    );
+                                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                                    setQuickAddInfo({
+                                                                        day: meeting.day,
+                                                                        slotIndex: slotIndex >= 0 ? slotIndex : 0,
+                                                                        position: { x: rect.left, y: rect.bottom }
+                                                                    });
+                                                                }}
+                                                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-accent text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 shadow-sm"
+                                                                title="Bu saate ders ekle"
+                                                            >
+                                                                <span className="text-xs font-bold">+</span>
+                                                            </button>
                                                         )}
                                                     </div>
                                                 );
