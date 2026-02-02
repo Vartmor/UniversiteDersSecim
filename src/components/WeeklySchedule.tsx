@@ -23,6 +23,7 @@ export function WeeklySchedule() {
     const [quickAddInfo, setQuickAddInfo] = useState<QuickAddInfo | null>(null);
     const [hiddenDays, setHiddenDays] = useState<Set<DayOfWeek>>(new Set());
     const [draggedMeeting, setDraggedMeeting] = useState<{ meeting: Meeting; section: Section } | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ sectionId: string; meetingId: string; meetingInfo: string } | null>(null);
 
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
@@ -403,9 +404,11 @@ export function WeeklySchedule() {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    if (confirm('Bu saati silmek istediğinizden emin misiniz?')) {
-                                                                        removeMeeting(section.id, meeting.id);
-                                                                    }
+                                                                    setDeleteConfirm({
+                                                                        sectionId: section.id,
+                                                                        meetingId: meeting.id,
+                                                                        meetingInfo: `${DAY_SHORT_NAMES[meeting.day]} ${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}`
+                                                                    });
                                                                 }}
                                                                 className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-sm"
                                                                 title="Bu saati sil"
@@ -519,10 +522,12 @@ export function WeeklySchedule() {
                             </button>
                             <button
                                 onClick={() => {
-                                    if (confirm('Bu saati silmek istediğinizden emin misiniz?')) {
-                                        removeMeeting(selectedMeeting.section.id, selectedMeeting.meeting.id);
-                                        setSelectedMeeting(null);
-                                    }
+                                    setDeleteConfirm({
+                                        sectionId: selectedMeeting.section.id,
+                                        meetingId: selectedMeeting.meeting.id,
+                                        meetingInfo: `${DAY_SHORT_NAMES[selectedMeeting.meeting.day]} ${formatMinutesToTime(selectedMeeting.meeting.startMinute)}-${formatMinutesToTime(selectedMeeting.meeting.endMinute)}`
+                                    });
+                                    setSelectedMeeting(null);
                                 }}
                                 className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
                             >
@@ -584,6 +589,51 @@ export function WeeklySchedule() {
                                     )}
                                 </button>
                             ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={() => setDeleteConfirm(null)}
+                >
+                    <div
+                        className="bg-white rounded-lg shadow-xl border border-border p-5 w-[320px]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 className="text-base font-semibold text-text-primary">Saati Sil</h4>
+                                <p className="text-xs text-text-secondary">{deleteConfirm.meetingInfo}</p>
+                            </div>
+                        </div>
+                        <p className="text-sm text-text-secondary mb-5">
+                            Bu saati silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setDeleteConfirm(null)}
+                                className="flex-1 px-4 py-2 text-sm text-text-primary border border-border rounded-md hover:bg-gray-50 transition-colors"
+                            >
+                                Vazgeç
+                            </button>
+                            <button
+                                onClick={() => {
+                                    removeMeeting(deleteConfirm.sectionId, deleteConfirm.meetingId);
+                                    setDeleteConfirm(null);
+                                }}
+                                className="flex-1 px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                            >
+                                Sil
+                            </button>
                         </div>
                     </div>
                 </div>
