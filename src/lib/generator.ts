@@ -31,7 +31,8 @@ function sectionPassesEarlyFilters(
         if (filters.earliestStart !== null && meeting.startMinute < filters.earliestStart) {
             return false;
         }
-        if (filters.latestEnd !== null && meeting.endMinute > filters.latestEnd) {
+        // latestEnd sadece yüzyüze (isOnline=false) dersler için geçerli
+        if (!section.isOnline && filters.latestEnd !== null && meeting.endMinute > filters.latestEnd) {
             return false;
         }
         if (filters.freeDays.includes(meeting.day)) {
