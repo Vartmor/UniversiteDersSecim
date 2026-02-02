@@ -470,12 +470,14 @@ export function CourseList() {
                                                                     />
                                                                 </div>
                                                             </div>
-                                                            <Input
-                                                                placeholder="Derslik (opsiyonel)"
-                                                                value={meetingForm.location}
-                                                                onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
-                                                                className="mt-2"
-                                                            />
+                                                            <div className="mt-2">
+                                                                <label className="text-xs text-text-secondary block mb-1">Derslik</label>
+                                                                <Input
+                                                                    placeholder="D201"
+                                                                    value={meetingForm.location}
+                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
+                                                                />
+                                                            </div>
                                                             <div className="flex gap-2 mt-2">
                                                                 <Button size="sm" onClick={() => handleAddMeeting(section.id)}>Ekle</Button>
                                                                 <Button size="sm" variant="ghost" onClick={() => setIsAddingMeeting(null)}>İptal</Button>
@@ -494,19 +496,24 @@ export function CourseList() {
 
                                             {/* Add Section */}
                                             {isAddingSection === course.id ? (
-                                                <div className="p-2 bg-bg-secondary rounded border border-border">
-                                                    <Input
-                                                        placeholder="Şube Adı (örn: 1. Şube)"
-                                                        value={sectionForm.name}
-                                                        onChange={(e) => setSectionForm({ ...sectionForm, name: e.target.value })}
-                                                        autoFocus
-                                                    />
-                                                    <Input
-                                                        placeholder="Öğretim Görevlisi (opsiyonel)"
-                                                        value={sectionForm.instructor}
-                                                        onChange={(e) => setSectionForm({ ...sectionForm, instructor: e.target.value })}
-                                                        className="mt-2"
-                                                    />
+                                                <div className="p-2 bg-bg-secondary rounded border border-border space-y-2">
+                                                    <div>
+                                                        <label className="text-xs text-text-secondary block mb-1">Şube Adı</label>
+                                                        <Input
+                                                            placeholder="1. Şube"
+                                                            value={sectionForm.name}
+                                                            onChange={(e) => setSectionForm({ ...sectionForm, name: e.target.value })}
+                                                            autoFocus
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-xs text-text-secondary block mb-1">Öğretim Görevlisi</label>
+                                                        <Input
+                                                            placeholder="Dr. Ahmet Yılmaz"
+                                                            value={sectionForm.instructor}
+                                                            onChange={(e) => setSectionForm({ ...sectionForm, instructor: e.target.value })}
+                                                        />
+                                                    </div>
                                                     <div className="flex gap-2 mt-2">
                                                         <Button size="sm" onClick={() => handleAddSection(course.id)}>Ekle</Button>
                                                         <Button size="sm" variant="ghost" onClick={() => setIsAddingSection(null)}>İptal</Button>
