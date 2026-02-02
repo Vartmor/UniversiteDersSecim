@@ -296,51 +296,90 @@ export function WeeklySchedule() {
                                         style={{ height: `${TIME_SLOTS.length * SLOT_HEIGHT}px` }}
                                     >
                                         {/* Clickable slot overlays for quick add */}
-                                        {selectedCourseFromStore && TIME_SLOTS.map((slot, i) => (
-                                            <div
-                                                key={`clickable-${slot.id}`}
-                                                className={`absolute w-full cursor-pointer transition-colors group z-10 ${draggedMeeting ? 'hover:bg-green-100' : 'hover:bg-accent/20'}`}
-                                                style={{
-                                                    top: `${i * SLOT_HEIGHT}px`,
-                                                    height: `${SLOT_HEIGHT}px`
-                                                }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                    setQuickAddInfo({
-                                                        day,
-                                                        slotIndex: i,
-                                                        position: { x: rect.left + rect.width / 2, y: rect.top }
-                                                    });
-                                                }}
-                                                onDragOver={(e) => {
-                                                    e.preventDefault();
-                                                    e.currentTarget.classList.add('bg-green-100');
-                                                }}
-                                                onDragLeave={(e) => {
-                                                    e.currentTarget.classList.remove('bg-green-100');
-                                                }}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    e.currentTarget.classList.remove('bg-green-100');
-                                                    if (draggedMeeting) {
-                                                        const duration = draggedMeeting.meeting.endMinute - draggedMeeting.meeting.startMinute;
-                                                        updateMeeting(draggedMeeting.section.id, draggedMeeting.meeting.id, {
-                                                            day: day,
-                                                            startMinute: slot.startMinute,
-                                                            endMinute: slot.startMinute + duration
+                                        {selectedCourseFromStore && TIME_SLOTS.map((slot, i) => {
+                                            // Check if the slot above has meetings
+                                            const prevSlot = i > 0 ? TIME_SLOTS[i - 1] : null;
+                                            const prevSlotMeetings = prevSlot ? getMeetingsForDay(day).filter(m =>
+                                                m.meeting.startMinute >= prevSlot.startMinute && m.meeting.startMinute < prevSlot.endMinute
+                                            ) : [];
+                                            const hasPrevSlotMeetings = prevSlotMeetings.length > 0;
+
+                                            return (
+                                                <div
+                                                    key={`clickable-${slot.id}`}
+                                                    className={`absolute w-full cursor-pointer transition-colors group z-10 ${draggedMeeting ? 'hover:bg-green-100' : 'hover:bg-accent/20'}`}
+                                                    style={{
+                                                        top: `${i * SLOT_HEIGHT}px`,
+                                                        height: `${SLOT_HEIGHT}px`
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        setQuickAddInfo({
+                                                            day,
+                                                            slotIndex: i,
+                                                            position: { x: rect.left + rect.width / 2, y: rect.top }
                                                         });
-                                                        setDraggedMeeting(null);
-                                                    }
-                                                }}
-                                            >
-                                                <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="text-xs text-accent font-medium bg-white/80 px-2 py-0.5 rounded shadow-sm">
-                                                        {draggedMeeting ? '📍 Bırak' : '+ Ekle'}
-                                                    </span>
+                                                    }}
+                                                    onDragOver={(e) => {
+                                                        e.preventDefault();
+                                                        e.currentTarget.classList.add('bg-green-100');
+                                                    }}
+                                                    onDragLeave={(e) => {
+                                                        e.currentTarget.classList.remove('bg-green-100');
+                                                    }}
+                                                    onDrop={(e) => {
+                                                        e.preventDefault();
+                                                        e.currentTarget.classList.remove('bg-green-100');
+                                                        if (draggedMeeting) {
+                                                            const duration = draggedMeeting.meeting.endMinute - draggedMeeting.meeting.startMinute;
+                                                            updateMeeting(draggedMeeting.section.id, draggedMeeting.meeting.id, {
+                                                                day: day,
+                                                                startMinute: slot.startMinute,
+                                                                endMinute: slot.startMinute + duration
+                                                            });
+                                                            setDraggedMeeting(null);
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="w-full h-full flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {draggedMeeting ? (
+                                                            <span className="text-xs text-accent font-medium bg-white/80 px-2 py-0.5 rounded shadow-sm">
+                                                                📍 Bırak
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                <span className="text-xs text-accent font-medium bg-white/80 px-2 py-0.5 rounded shadow-sm">
+                                                                    + Ekle
+                                                                </span>
+                                                                {hasPrevSlotMeetings && (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            // Copy meetings from previous slot
+                                                                            prevSlotMeetings.forEach(({ meeting, section }) => {
+                                                                                const duration = meeting.endMinute - meeting.startMinute;
+                                                                                addMeeting(section.id, {
+                                                                                    day: day,
+                                                                                    startMinute: slot.startMinute,
+                                                                                    endMinute: slot.startMinute + duration,
+                                                                                    location: meeting.location,
+                                                                                    type: meeting.type,
+                                                                                });
+                                                                            });
+                                                                        }}
+                                                                        className="text-xs text-green-600 font-medium bg-green-50 hover:bg-green-100 px-2 py-0.5 rounded shadow-sm transition-colors"
+                                                                        title="Üstteki saatleri bu slota kopyala"
+                                                                    >
+                                                                        ↓ Üsttekini Kopyala
+                                                                    </button>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
 
                                         {/* Slot lines */}
                                         {TIME_SLOTS.map((slot, i) => (
