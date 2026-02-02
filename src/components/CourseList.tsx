@@ -30,6 +30,7 @@ export function CourseList() {
         credits: 3,
         required: true,
         isOnline: false,
+        sectionCount: 1,
     });
 
     const [sectionForm, setSectionForm] = useState({
@@ -58,7 +59,23 @@ export function CourseList() {
                 required: courseForm.required,
                 isOnline: courseForm.isOnline,
             });
-            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
+
+            // Auto-create sections based on sectionCount
+            // Note: We need to get the course ID from the store after it's added
+            setTimeout(() => {
+                const term = terms.find(t => t.id === activeTermId);
+                const newCourse = term?.courses.find(c => c.code === courseForm.code.trim());
+                if (newCourse) {
+                    for (let i = 1; i <= courseForm.sectionCount; i++) {
+                        addSection(newCourse.id, {
+                            courseId: newCourse.id,
+                            name: `${i}. Şube`,
+                        });
+                    }
+                }
+            }, 0);
+
+            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false, sectionCount: 1 });
             setIsAddingCourse(false);
         }
     };
@@ -70,6 +87,7 @@ export function CourseList() {
             credits: course.credits,
             required: course.required,
             isOnline: course.isOnline,
+            sectionCount: 1, // Not used in edit mode
         });
         setEditingCourseId(course.id);
         setIsAddingCourse(false);
@@ -84,13 +102,13 @@ export function CourseList() {
                 required: courseForm.required,
                 isOnline: courseForm.isOnline,
             });
-            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
+            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false, sectionCount: 1 });
             setEditingCourseId(null);
         }
     };
 
     const cancelEdit = () => {
-        setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
+        setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false, sectionCount: 1 });
         setEditingCourseId(null);
         setIsAddingCourse(false);
     };
@@ -181,7 +199,7 @@ export function CourseList() {
                     <div className="mb-4 p-3 bg-bg-secondary rounded-lg border border-border">
                         <h3 className="text-sm font-medium mb-3">Yeni Ders</h3>
                         <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                                 <div>
                                     <label className="text-xs text-text-secondary block mb-1">Ders Kodu</label>
                                     <Input
@@ -200,6 +218,17 @@ export function CourseList() {
                                         max={10}
                                         value={courseForm.credits}
                                         onChange={(e) => setCourseForm({ ...courseForm, credits: parseInt(e.target.value) || 3 })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-text-secondary block mb-1">Şube Sayısı</label>
+                                    <Input
+                                        placeholder="1"
+                                        type="number"
+                                        min={1}
+                                        max={20}
+                                        value={courseForm.sectionCount}
+                                        onChange={(e) => setCourseForm({ ...courseForm, sectionCount: parseInt(e.target.value) || 1 })}
                                     />
                                 </div>
                             </div>
