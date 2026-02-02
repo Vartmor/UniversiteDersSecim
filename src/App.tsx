@@ -255,14 +255,14 @@ function App() {
 
           {/* Right Panel - Filters & Results */}
           <aside className="w-72 border-l border-border bg-bg-primary flex-shrink-0 flex flex-col">
-            {/* Filters */}
-            <div className="flex-1 border-b border-border overflow-hidden">
+            {/* Filters - daha küçük */}
+            <div className="h-64 border-b border-border overflow-hidden flex-shrink-0">
               <FilterPanel />
             </div>
 
-            {/* Results */}
-            <div className="h-64 overflow-hidden flex-shrink-0">
-              <div className="p-4 border-b border-border">
+            {/* Results - daha geniş */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-border flex-shrink-0">
                 <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
                   Kombinasyonlar
                 </h2>
