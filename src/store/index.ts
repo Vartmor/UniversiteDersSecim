@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Term, Course, Section, Schedule, UserFilters, ScoreWeights, DEFAULT_SCORE_WEIGHTS, COURSE_COLORS } from '../types';
+import { tauriStorage } from '../lib/tauriStorage';
 
 // Uygulama durumu
 interface AppState {
@@ -12,9 +13,7 @@ interface AppState {
     filters: UserFilters;
     scoreWeights: ScoreWeights;
     isGenerating: boolean;
-    _hasHydrated: boolean;
 
-    setHasHydrated: (state: boolean) => void;
     addTerm: (name: string) => void;
     removeTerm: (id: string) => void;
     setActiveTerm: (id: string | null) => void;
@@ -67,9 +66,6 @@ export const useStore = create<AppState>()(
             filters: defaultFilters,
             scoreWeights: DEFAULT_SCORE_WEIGHTS,
             isGenerating: false,
-            _hasHydrated: false,
-
-            setHasHydrated: (state) => set({ _hasHydrated: state }),
 
             addTerm: (name) => {
                 const newTerm: Term = {
@@ -290,19 +286,13 @@ export const useStore = create<AppState>()(
         }),
         {
             name: 'universite-ders-secim-data',
-            storage: createJSONStorage(() => localStorage),
+            storage: createJSONStorage(() => tauriStorage),
             partialize: (state) => ({
                 terms: state.terms,
                 activeTermId: state.activeTermId,
                 filters: state.filters,
                 scoreWeights: state.scoreWeights,
             }),
-            onRehydrateStorage: () => (state) => {
-                state?.setHasHydrated(true);
-            },
         }
     )
 );
-
-// Hydration durumunu kontrol et
-export const useHasHydrated = () => useStore((state) => state._hasHydrated);
