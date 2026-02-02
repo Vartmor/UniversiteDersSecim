@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, TIME_SLOTS, formatMinutesToTime } from '../types';
+import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, Section, TIME_SLOTS, formatMinutesToTime } from '../types';
 
 const DAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const SLOT_HEIGHT = 52; // pixels per time slot
@@ -7,33 +7,44 @@ const SLOT_HEIGHT = 52; // pixels per time slot
 export function WeeklySchedule() {
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
+    const selectedCourseId = useStore((state) => state.selectedCourseId);
     const schedules = useStore((state) => state.schedules);
     const selectedScheduleId = useStore((state) => state.selectedScheduleId);
 
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
+    const selectedCourse = courses.find((c) => c.id === selectedCourseId);
 
     const selectedSchedule = schedules.find((s) => s.id === selectedScheduleId);
 
-    // Build a map of all meetings with course info
-    const getMeetingsForDisplay = (): { meeting: Meeting; course: Course }[] => {
-        const meetings: { meeting: Meeting; course: Course }[] = [];
+    // Build a map of all meetings with course and section info
+    const getMeetingsForDisplay = (): { meeting: Meeting; course: Course; section: Section }[] => {
+        const meetings: { meeting: Meeting; course: Course; section: Section }[] = [];
 
-        if (selectedSchedule) {
+        // If a course is selected, show only that course's sections
+        if (selectedCourse) {
+            for (const section of selectedCourse.sections) {
+                for (const meeting of section.meetings) {
+                    meetings.push({ meeting, course: selectedCourse, section });
+                }
+            }
+        } else if (selectedSchedule) {
+            // Show selected schedule
             for (const course of courses) {
                 for (const section of course.sections) {
                     if (selectedSchedule.sectionIds.includes(section.id)) {
                         for (const meeting of section.meetings) {
-                            meetings.push({ meeting, course });
+                            meetings.push({ meeting, course, section });
                         }
                     }
                 }
             }
         } else {
+            // Show all courses
             for (const course of courses) {
                 for (const section of course.sections) {
                     for (const meeting of section.meetings) {
-                        meetings.push({ meeting, course });
+                        meetings.push({ meeting, course, section });
                     }
                 }
             }
@@ -98,13 +109,17 @@ export function WeeklySchedule() {
             {/* Header */}
             <div className="p-4 border-b border-border">
                 <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    Haftalık Program
+                    {selectedCourse ? `${selectedCourse.code} - Haftalık Program` : 'Haftalık Program'}
                 </h2>
-                {selectedSchedule && (
+                {selectedCourse ? (
+                    <p className="text-xs text-text-secondary mt-0.5">
+                        {selectedCourse.name} • {selectedCourse.sections.length} şube
+                    </p>
+                ) : selectedSchedule ? (
                     <p className="text-xs text-text-secondary mt-0.5">
                         Seçili kombinasyon: Skor {selectedSchedule.score}
                     </p>
-                )}
+                ) : null}
             </div>
 
             {/* Schedule Grid */}
@@ -171,7 +186,7 @@ export function WeeklySchedule() {
                                         ))}
 
                                         {/* Meeting blocks */}
-                                        {getMeetingsForDay(day).map(({ meeting, course }) => (
+                                        {getMeetingsForDay(day).map(({ meeting, course, section }) => (
                                             <div
                                                 key={meeting.id}
                                                 className="absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
@@ -180,13 +195,13 @@ export function WeeklySchedule() {
                                                     backgroundColor: course.color,
                                                     borderLeft: `3px solid ${course.color === '#F3F4F6' ? '#9CA3AF' : course.color}`,
                                                 }}
-                                                title={`${course.code} - ${course.name}\n${formatMinutesToTime(meeting.startMinute)} - ${formatMinutesToTime(meeting.endMinute)}`}
+                                                title={`${course.code} - ${section.name}\n${formatMinutesToTime(meeting.startMinute)} - ${formatMinutesToTime(meeting.endMinute)}`}
                                             >
                                                 <div className="text-xs font-semibold text-text-primary truncate">
-                                                    {course.code}
+                                                    {selectedCourse ? section.name : course.code}
                                                 </div>
                                                 <div className="text-[10px] text-text-secondary truncate">
-                                                    {formatMinutesToTime(meeting.startMinute)} - {formatMinutesToTime(meeting.endMinute)}
+                                                    {selectedCourse ? `${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}` : section.name}
                                                 </div>
                                                 {meeting.location && (
                                                     <div className="text-[10px] text-text-secondary truncate">
@@ -202,6 +217,6 @@ export function WeeklySchedule() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
