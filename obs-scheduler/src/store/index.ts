@@ -1,0 +1,304 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { Term, Course, Section, Schedule, UserFilters, COURSE_COLORS } from '../types';
+
+// Uygulama durumu
+interface AppState {
+    // Dönemler
+    terms: Term[];
+    activeTermId: string | null;
+
+    // Seçili öğeler
+    selectedCourseId: string | null;
+    selectedScheduleId: string | null;
+
+    // Oluşturulan programlar
+    schedules: Schedule[];
+
+    // Filtreler
+    filters: UserFilters;
+
+    // UI durumu
+    isGenerating: boolean;
+
+    // Aksiyon fonksiyonları
+    // Dönem işlemleri
+    addTerm: (name: string) => void;
+    removeTerm: (id: string) => void;
+    setActiveTerm: (id: string | null) => void;
+
+    // Ders işlemleri
+    addCourse: (course: Omit<Course, 'id' | 'color' | 'sections'>) => void;
+    updateCourse: (id: string, updates: Partial<Course>) => void;
+    removeCourse: (id: string) => void;
+    setSelectedCourse: (id: string | null) => void;
+
+    // Şube işlemleri
+    addSection: (courseId: string, section: Omit<Section, 'id' | 'meetings'>) => void;
+    updateSection: (sectionId: string, updates: Partial<Section>) => void;
+    removeSection: (courseId: string, sectionId: string) => void;
+
+    // Meeting işlemleri
+    addMeeting: (sectionId: string, meeting: Omit<Section['meetings'][0], 'id' | 'sectionId'>) => void;
+    removeMeeting: (sectionId: string, meetingId: string) => void;
+
+    // Filtre işlemleri
+    updateFilters: (filters: Partial<UserFilters>) => void;
+    resetFilters: () => void;
+
+    // Program işlemleri
+    setSchedules: (schedules: Schedule[]) => void;
+    togglePinSchedule: (id: string) => void;
+    setSelectedSchedule: (id: string | null) => void;
+
+    // Yardımcı fonksiyonlar
+    getActiveTerm: () => Term | undefined;
+    getCourseById: (id: string) => Course | undefined;
+    getSectionById: (id: string) => Section | undefined;
+}
+
+// ID oluşturucu
+const generateId = () => crypto.randomUUID();
+
+// Varsayılan filtreler
+const defaultFilters: UserFilters = {
+    earliestStart: null,
+    latestEnd: null,
+    freeDays: [],
+    maxGap: null,
+    lunchBreak: false,
+    minFreeDays: 0,
+};
+
+// Zustand store
+export const useStore = create<AppState>()(
+    persist(
+        (set, get) => ({
+            // Başlangıç durumu
+            terms: [],
+            activeTermId: null,
+            selectedCourseId: null,
+            selectedScheduleId: null,
+            schedules: [],
+            filters: defaultFilters,
+            isGenerating: false,
+
+            // Dönem işlemleri
+            addTerm: (name) => {
+                const newTerm: Term = {
+                    id: generateId(),
+                    name,
+                    courses: [],
+                };
+                set((state) => ({
+                    terms: [...state.terms, newTerm],
+                    activeTermId: newTerm.id,
+                }));
+            },
+
+            removeTerm: (id) => {
+                set((state) => ({
+                    terms: state.terms.filter((t) => t.id !== id),
+                    activeTermId: state.activeTermId === id ? null : state.activeTermId,
+                }));
+            },
+
+            setActiveTerm: (id) => {
+                set({ activeTermId: id, selectedCourseId: null, schedules: [] });
+            },
+
+            // Ders işlemleri
+            addCourse: (courseData) => {
+                const state = get();
+                if (!state.activeTermId) return;
+
+                const activeTerm = state.terms.find((t) => t.id === state.activeTermId);
+                const colorIndex = activeTerm ? activeTerm.courses.length % COURSE_COLORS.length : 0;
+
+                const newCourse: Course = {
+                    ...courseData,
+                    id: generateId(),
+                    color: COURSE_COLORS[colorIndex],
+                    sections: [],
+                };
+
+                set((state) => ({
+                    terms: state.terms.map((term) =>
+                        term.id === state.activeTermId
+                            ? { ...term, courses: [...term.courses, newCourse] }
+                            : term
+                    ),
+                }));
+            },
+
+            updateCourse: (id, updates) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) =>
+                            course.id === id ? { ...course, ...updates } : course
+                        ),
+                    })),
+                }));
+            },
+
+            removeCourse: (id) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.filter((c) => c.id !== id),
+                    })),
+                    selectedCourseId: state.selectedCourseId === id ? null : state.selectedCourseId,
+                }));
+            },
+
+            setSelectedCourse: (id) => {
+                set({ selectedCourseId: id });
+            },
+
+            // Şube işlemleri
+            addSection: (courseId, sectionData) => {
+                const newSection: Section = {
+                    ...sectionData,
+                    id: generateId(),
+                    courseId,
+                    meetings: [],
+                };
+
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) =>
+                            course.id === courseId
+                                ? { ...course, sections: [...course.sections, newSection] }
+                                : course
+                        ),
+                    })),
+                }));
+            },
+
+            updateSection: (sectionId, updates) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) => ({
+                            ...course,
+                            sections: course.sections.map((section) =>
+                                section.id === sectionId ? { ...section, ...updates } : section
+                            ),
+                        })),
+                    })),
+                }));
+            },
+
+            removeSection: (courseId, sectionId) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) =>
+                            course.id === courseId
+                                ? { ...course, sections: course.sections.filter((s) => s.id !== sectionId) }
+                                : course
+                        ),
+                    })),
+                }));
+            },
+
+            // Meeting işlemleri
+            addMeeting: (sectionId, meetingData) => {
+                const newMeeting = {
+                    ...meetingData,
+                    id: generateId(),
+                    sectionId,
+                };
+
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) => ({
+                            ...course,
+                            sections: course.sections.map((section) =>
+                                section.id === sectionId
+                                    ? { ...section, meetings: [...section.meetings, newMeeting] }
+                                    : section
+                            ),
+                        })),
+                    })),
+                }));
+            },
+
+            removeMeeting: (sectionId, meetingId) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) => ({
+                            ...course,
+                            sections: course.sections.map((section) =>
+                                section.id === sectionId
+                                    ? { ...section, meetings: section.meetings.filter((m) => m.id !== meetingId) }
+                                    : section
+                            ),
+                        })),
+                    })),
+                }));
+            },
+
+            // Filtre işlemleri
+            updateFilters: (filterUpdates) => {
+                set((state) => ({
+                    filters: { ...state.filters, ...filterUpdates },
+                }));
+            },
+
+            resetFilters: () => {
+                set({ filters: defaultFilters });
+            },
+
+            // Program işlemleri
+            setSchedules: (schedules) => {
+                set({ schedules, selectedScheduleId: schedules.length > 0 ? schedules[0].id : null });
+            },
+
+            togglePinSchedule: (id) => {
+                set((state) => ({
+                    schedules: state.schedules.map((s) =>
+                        s.id === id ? { ...s, pinned: !s.pinned } : s
+                    ),
+                }));
+            },
+
+            setSelectedSchedule: (id) => {
+                set({ selectedScheduleId: id });
+            },
+
+            // Yardımcı fonksiyonlar
+            getActiveTerm: () => {
+                const state = get();
+                return state.terms.find((t) => t.id === state.activeTermId);
+            },
+
+            getCourseById: (id) => {
+                const state = get();
+                for (const term of state.terms) {
+                    const course = term.courses.find((c) => c.id === id);
+                    if (course) return course;
+                }
+                return undefined;
+            },
+
+            getSectionById: (id) => {
+                const state = get();
+                for (const term of state.terms) {
+                    for (const course of term.courses) {
+                        const section = course.sections.find((s) => s.id === id);
+                        if (section) return section;
+                    }
+                }
+                return undefined;
+            },
+        }),
+        {
+            name: 'obs-scheduler-storage',
+        }
+    )
+);
