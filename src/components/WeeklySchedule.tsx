@@ -299,7 +299,7 @@ export function WeeklySchedule() {
                                         {selectedCourseFromStore && TIME_SLOTS.map((slot, i) => (
                                             <div
                                                 key={`clickable-${slot.id}`}
-                                                className={`absolute w-full cursor-pointer hover:bg-accent/10 transition-colors group ${draggedMeeting ? 'hover:bg-green-100' : ''}`}
+                                                className={`absolute w-full cursor-pointer transition-colors group z-10 ${draggedMeeting ? 'hover:bg-green-100' : 'hover:bg-accent/20'}`}
                                                 style={{
                                                     top: `${i * SLOT_HEIGHT}px`,
                                                     height: `${SLOT_HEIGHT}px`
