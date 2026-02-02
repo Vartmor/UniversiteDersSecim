@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useStore } from '../store';
 import { Button, Input, Select } from './ui';
-import { DayOfWeek, DAY_NAMES, MeetingType } from '../types';
-import { minutesToTime, timeToMinutes } from '../lib/utils';
+import { DayOfWeek, DAY_NAMES, MeetingType, TIME_SLOTS, formatMinutesToTime } from '../types';
+import { minutesToTime } from '../lib/utils';
 
 export function CourseList() {
     const activeTermId = useStore((state) => state.activeTermId);
@@ -36,8 +36,8 @@ export function CourseList() {
 
     const [meetingForm, setMeetingForm] = useState({
         day: 'Mon' as DayOfWeek,
-        startTime: '09:00',
-        endTime: '10:00',
+        startMinute: TIME_SLOTS[0].startMinute,
+        endMinute: TIME_SLOTS[0].endMinute,
         location: '',
         type: 'Lecture' as MeetingType,
     });
@@ -107,15 +107,15 @@ export function CourseList() {
     const handleAddMeeting = (sectionId: string) => {
         addMeeting(sectionId, {
             day: meetingForm.day,
-            startMinute: timeToMinutes(meetingForm.startTime),
-            endMinute: timeToMinutes(meetingForm.endTime),
+            startMinute: meetingForm.startMinute,
+            endMinute: meetingForm.endMinute,
             location: meetingForm.location.trim() || undefined,
             type: meetingForm.type,
         });
         setMeetingForm({
             day: 'Mon',
-            startTime: '09:00',
-            endTime: '10:00',
+            startMinute: TIME_SLOTS[0].startMinute,
+            endMinute: TIME_SLOTS[0].endMinute,
             location: '',
             type: 'Lecture',
         });
@@ -431,16 +431,28 @@ export function CourseList() {
                                                                 />
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-2 mt-2">
-                                                                <Input
-                                                                    type="time"
-                                                                    value={meetingForm.startTime}
-                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, startTime: e.target.value })}
-                                                                />
-                                                                <Input
-                                                                    type="time"
-                                                                    value={meetingForm.endTime}
-                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, endTime: e.target.value })}
-                                                                />
+                                                                <div>
+                                                                    <label className="text-xs text-text-secondary block mb-1">Başlangıç</label>
+                                                                    <Select
+                                                                        options={TIME_SLOTS.map(slot => ({
+                                                                            value: slot.startMinute.toString(),
+                                                                            label: formatMinutesToTime(slot.startMinute),
+                                                                        }))}
+                                                                        value={meetingForm.startMinute.toString()}
+                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, startMinute: parseInt(e.target.value) })}
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-xs text-text-secondary block mb-1">Bitiş</label>
+                                                                    <Select
+                                                                        options={TIME_SLOTS.map(slot => ({
+                                                                            value: slot.endMinute.toString(),
+                                                                            label: formatMinutesToTime(slot.endMinute),
+                                                                        }))}
+                                                                        value={meetingForm.endMinute.toString()}
+                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, endMinute: parseInt(e.target.value) })}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                             <Input
                                                                 placeholder="Derslik (opsiyonel)"
