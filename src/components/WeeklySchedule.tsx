@@ -1,11 +1,8 @@
 import { useStore } from '../store';
-import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course } from '../types';
-import { minutesToTime } from '../lib/utils';
+import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, TIME_SLOTS, formatMinutesToTime } from '../types';
 
 const DAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const START_HOUR = 8;
-const END_HOUR = 20;
-const HOUR_HEIGHT = 48; // pixels per hour
+const SLOT_HEIGHT = 52; // pixels per time slot
 
 export function WeeklySchedule() {
     const terms = useStore((state) => state.terms);
@@ -16,7 +13,6 @@ export function WeeklySchedule() {
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
 
-    // Get selected schedule's sections or show all sections if no schedule selected
     const selectedSchedule = schedules.find((s) => s.id === selectedScheduleId);
 
     // Build a map of all meetings with course info
@@ -24,7 +20,6 @@ export function WeeklySchedule() {
         const meetings: { meeting: Meeting; course: Course }[] = [];
 
         if (selectedSchedule) {
-            // Show only selected schedule's sections
             for (const course of courses) {
                 for (const section of course.sections) {
                     if (selectedSchedule.sectionIds.includes(section.id)) {
@@ -35,7 +30,6 @@ export function WeeklySchedule() {
                 }
             }
         } else {
-            // Show all meetings (preview mode)
             for (const course of courses) {
                 for (const section of course.sections) {
                     for (const meeting of section.meetings) {
@@ -55,17 +49,49 @@ export function WeeklySchedule() {
         return allMeetings.filter((m) => m.meeting.day === day);
     };
 
-    // Calculate position and height for a meeting block
-    const getMeetingStyle = (meeting: Meeting) => {
-        const startHour = meeting.startMinute / 60;
-        const endHour = meeting.endMinute / 60;
-        const top = (startHour - START_HOUR) * HOUR_HEIGHT;
-        const height = (endHour - startHour) * HOUR_HEIGHT;
-        return { top: `${top}px`, height: `${height}px` };
+    // Find which slots a meeting spans
+    const getMeetingSlots = (meeting: Meeting): { startSlot: number; slotCount: number } => {
+        let startSlot = -1;
+        let endSlot = -1;
+
+        for (let i = 0; i < TIME_SLOTS.length; i++) {
+            const slot = TIME_SLOTS[i];
+            // Meeting starts in this slot
+            if (meeting.startMinute >= slot.startMinute && meeting.startMinute < slot.endMinute) {
+                startSlot = i;
+            }
+            // Meeting ends in this slot or after
+            if (meeting.endMinute <= slot.endMinute && meeting.endMinute > slot.startMinute) {
+                endSlot = i;
+            }
+        }
+
+        // If meeting spans exactly slot boundaries
+        if (startSlot === -1) {
+            for (let i = 0; i < TIME_SLOTS.length; i++) {
+                if (meeting.startMinute <= TIME_SLOTS[i].startMinute) {
+                    startSlot = i;
+                    break;
+                }
+            }
+        }
+        if (endSlot === -1) {
+            endSlot = startSlot;
+        }
+
+        return {
+            startSlot: Math.max(0, startSlot),
+            slotCount: Math.max(1, endSlot - startSlot + 1)
+        };
     };
 
-    // Generate hour labels
-    const hours = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);
+    // Calculate position and height for a meeting block
+    const getMeetingStyle = (meeting: Meeting) => {
+        const { startSlot, slotCount } = getMeetingSlots(meeting);
+        const top = startSlot * SLOT_HEIGHT;
+        const height = slotCount * SLOT_HEIGHT - 2;
+        return { top: `${top}px`, height: `${height}px` };
+    };
 
     return (
         <div className="h-full flex flex-col bg-white">
@@ -97,18 +123,23 @@ export function WeeklySchedule() {
                         </p>
                     </div>
                 ) : (
-                    <div className="flex min-w-[600px]">
+                    <div className="flex min-w-[650px]">
                         {/* Time Column */}
-                        <div className="w-16 flex-shrink-0">
+                        <div className="w-20 flex-shrink-0">
                             <div className="h-8"></div> {/* Header spacer */}
                             <div className="relative">
-                                {hours.map((hour) => (
+                                {TIME_SLOTS.map((slot) => (
                                     <div
-                                        key={hour}
-                                        className="text-xs text-text-secondary text-right pr-2"
-                                        style={{ height: `${HOUR_HEIGHT}px` }}
+                                        key={slot.id}
+                                        className="text-xs text-text-secondary pr-2 flex flex-col justify-center"
+                                        style={{ height: `${SLOT_HEIGHT}px` }}
                                     >
-                                        {`${hour.toString().padStart(2, '0')}:00`}
+                                        <div className="font-medium">
+                                            {formatMinutesToTime(slot.startMinute)}
+                                        </div>
+                                        <div className="text-gray-400">
+                                            {formatMinutesToTime(slot.endMinute)}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -119,7 +150,7 @@ export function WeeklySchedule() {
                             {DAYS.map((day) => (
                                 <div key={day} className="flex-1 min-w-[100px]">
                                     {/* Day Header */}
-                                    <div className="h-8 flex items-center justify-center border-b border-border">
+                                    <div className="h-8 flex items-center justify-center border-b border-border bg-bg-secondary rounded-t">
                                         <span className="text-sm font-medium text-text-primary">
                                             {DAY_SHORT_NAMES[day]}
                                         </span>
@@ -128,14 +159,14 @@ export function WeeklySchedule() {
                                     {/* Day Column */}
                                     <div
                                         className="relative border-l border-border"
-                                        style={{ height: `${(END_HOUR - START_HOUR) * HOUR_HEIGHT}px` }}
+                                        style={{ height: `${TIME_SLOTS.length * SLOT_HEIGHT}px` }}
                                     >
-                                        {/* Hour lines */}
-                                        {hours.map((hour) => (
+                                        {/* Slot lines */}
+                                        {TIME_SLOTS.map((slot, i) => (
                                             <div
-                                                key={hour}
+                                                key={slot.id}
                                                 className="absolute w-full border-t border-gray-100"
-                                                style={{ top: `${(hour - START_HOUR) * HOUR_HEIGHT}px` }}
+                                                style={{ top: `${i * SLOT_HEIGHT}px` }}
                                             />
                                         ))}
 
@@ -143,19 +174,19 @@ export function WeeklySchedule() {
                                         {getMeetingsForDay(day).map(({ meeting, course }) => (
                                             <div
                                                 key={meeting.id}
-                                                className="absolute left-0.5 right-0.5 rounded-sm px-1 py-0.5 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                                className="absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
                                                 style={{
                                                     ...getMeetingStyle(meeting),
                                                     backgroundColor: course.color,
                                                     borderLeft: `3px solid ${course.color === '#F3F4F6' ? '#9CA3AF' : course.color}`,
                                                 }}
-                                                title={`${course.code} - ${course.name}\n${minutesToTime(meeting.startMinute)} - ${minutesToTime(meeting.endMinute)}`}
+                                                title={`${course.code} - ${course.name}\n${formatMinutesToTime(meeting.startMinute)} - ${formatMinutesToTime(meeting.endMinute)}`}
                                             >
-                                                <div className="text-xs font-medium text-text-primary truncate">
+                                                <div className="text-xs font-semibold text-text-primary truncate">
                                                     {course.code}
                                                 </div>
                                                 <div className="text-[10px] text-text-secondary truncate">
-                                                    {minutesToTime(meeting.startMinute)}
+                                                    {formatMinutesToTime(meeting.startMinute)} - {formatMinutesToTime(meeting.endMinute)}
                                                 </div>
                                                 {meeting.location && (
                                                     <div className="text-[10px] text-text-secondary truncate">

@@ -870,7 +870,7 @@ await invoke('export_as_png', { scheduleId: 'sch-1' });
 
 ---
 
-> **Son Güncelleme:** 2 Şubat 2026
+> **Son Güncelleme:** 2 Şubat 2026 22:05
 > 
 > **Yazar:** Muhammed Köseoğlu ve Claude Opus 4.5
 >
