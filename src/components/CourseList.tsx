@@ -545,7 +545,9 @@ export function CourseList() {
                                                             <div>
                                                                 <label className="text-xs text-text-secondary block mb-1">Gün</label>
                                                                 <Select
-                                                                    options={Object.entries(DAY_NAMES).map(([value, label]) => ({ value, label }))}
+                                                                    options={Object.entries(DAY_NAMES)
+                                                                        .filter(([key]) => key !== 'Sat' && key !== 'Sun')
+                                                                        .map(([value, label]) => ({ value, label }))}
                                                                     value={meetingForm.day}
                                                                     onChange={(e) => setMeetingForm({ ...meetingForm, day: e.target.value as DayOfWeek })}
                                                                 />
@@ -585,14 +587,16 @@ export function CourseList() {
                                                                     />
                                                                 </div>
                                                             </div>
-                                                            <div className="mt-2">
-                                                                <label className="text-xs text-text-secondary block mb-1">Derslik <span className="opacity-60">(opsiyonel)</span></label>
-                                                                <Input
-                                                                    placeholder="D201"
-                                                                    value={meetingForm.location}
-                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
-                                                                />
-                                                            </div>
+                                                            {!course.isOnline && (
+                                                                <div className="mt-2">
+                                                                    <label className="text-xs text-text-secondary block mb-1">Derslik <span className="opacity-60">(opsiyonel)</span></label>
+                                                                    <Input
+                                                                        placeholder="D201"
+                                                                        value={meetingForm.location}
+                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
+                                                                    />
+                                                                </div>
+                                                            )}
                                                             <div className="flex gap-2 mt-2">
                                                                 <Button size="sm" onClick={() => handleAddMeeting(section.id)}>Ekle</Button>
                                                                 <Button size="sm" variant="ghost" onClick={() => setIsAddingMeeting(null)}>İptal</Button>
