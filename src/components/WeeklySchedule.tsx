@@ -137,6 +137,18 @@ export function WeeklySchedule() {
                             Sol panelden ders ekleyin.
                         </p>
                     </div>
+                ) : !selectedCourse && !selectedSchedule ? (
+                    <div className="h-full flex items-center justify-center">
+                        <div className="text-center">
+                            <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p className="text-text-secondary">
+                                Haftalık programı görüntülemek için<br />
+                                <span className="font-medium text-accent">sol panelden bir ders seçin</span>
+                            </p>
+                        </div>
+                    </div>
                 ) : (
                     <div className="flex min-w-[650px]">
                         {/* Time Column */}

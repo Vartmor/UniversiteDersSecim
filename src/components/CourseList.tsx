@@ -69,6 +69,10 @@ export function CourseList() {
                 const term = state.terms.find(t => t.id === activeTermId);
                 const newCourse = term?.courses.find(c => c.code === courseCode);
                 if (newCourse) {
+                    // Auto-select the new course
+                    state.setSelectedCourse(newCourse.id);
+
+                    // Create sections
                     for (let i = 1; i <= sectionCount; i++) {
                         state.addSection(newCourse.id, {
                             courseId: newCourse.id,
