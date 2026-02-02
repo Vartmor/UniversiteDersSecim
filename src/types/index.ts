@@ -20,7 +20,6 @@ export interface Section {
     name: string; // "1. Şube" gibi
     instructor?: string;
     capacity?: number;
-    isOnline: boolean; // true = çevrimiçi, false = yüzyüze
     meetings: Meeting[];
 }
 
@@ -32,6 +31,7 @@ export interface Course {
     name: string;
     credits: number;
     required: boolean; // Zorunlu mu?
+    isOnline: boolean; // true = çevrimiçi, false = yüzyüze
     color: string; // Ders rengi
     sections: Section[];
 }

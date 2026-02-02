@@ -24,12 +24,12 @@ export function CourseList() {
         name: '',
         credits: 3,
         required: true,
+        isOnline: false,
     });
 
     const [sectionForm, setSectionForm] = useState({
         name: '',
         instructor: '',
-        isOnline: false,
     });
 
     const [meetingForm, setMeetingForm] = useState({
@@ -51,8 +51,9 @@ export function CourseList() {
                 name: courseForm.name.trim(),
                 credits: courseForm.credits,
                 required: courseForm.required,
+                isOnline: courseForm.isOnline,
             });
-            setCourseForm({ code: '', name: '', credits: 3, required: true });
+            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
             setIsAddingCourse(false);
         }
     };
@@ -63,9 +64,8 @@ export function CourseList() {
                 courseId,
                 name: sectionForm.name.trim(),
                 instructor: sectionForm.instructor.trim() || undefined,
-                isOnline: sectionForm.isOnline,
             });
-            setSectionForm({ name: '', instructor: '', isOnline: false });
+            setSectionForm({ name: '', instructor: '' });
             setIsAddingSection(null);
         }
     };
@@ -166,6 +166,26 @@ export function CourseList() {
                                     Seçmeli
                                 </label>
                             </div>
+                            <div className="flex items-center gap-4">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        checked={!courseForm.isOnline}
+                                        onChange={() => setCourseForm({ ...courseForm, isOnline: false })}
+                                        className="accent-accent"
+                                    />
+                                    Yüzyüze
+                                </label>
+                                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        checked={courseForm.isOnline}
+                                        onChange={() => setCourseForm({ ...courseForm, isOnline: true })}
+                                        className="accent-accent"
+                                    />
+                                    Çevrimiçi
+                                </label>
+                            </div>
                             <div className="flex gap-2 pt-2">
                                 <Button size="sm" onClick={handleAddCourse}>Ekle</Button>
                                 <Button size="sm" variant="ghost" onClick={() => setIsAddingCourse(false)}>İptal</Button>
@@ -216,6 +236,12 @@ export function CourseList() {
                                                 }`}>
                                                 {course.required ? 'Zorunlu' : 'Seçmeli'}
                                             </span>
+                                            <span className={`text-xs px-1.5 py-0.5 rounded ${course.isOnline
+                                                ? 'bg-purple-100 text-purple-700'
+                                                : 'bg-green-100 text-green-700'
+                                                }`}>
+                                                {course.isOnline ? 'Çevrimiçi' : 'Yüzyüze'}
+                                            </span>
                                         </div>
                                     </div>
                                     <p className="text-xs text-text-secondary mt-1">
@@ -231,12 +257,7 @@ export function CourseList() {
                                             {course.sections.map((section) => (
                                                 <div key={section.id} className="bg-bg-secondary rounded p-2">
                                                     <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-medium">{section.name}</span>
-                                                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${section.isOnline ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
-                                                                {section.isOnline ? 'Çevrimiçi' : 'Yüzyüze'}
-                                                            </span>
-                                                        </div>
+                                                        <span className="text-sm font-medium">{section.name}</span>
                                                         {section.instructor && (
                                                             <span className="text-xs text-text-secondary">{section.instructor}</span>
                                                         )}
@@ -321,26 +342,6 @@ export function CourseList() {
                                                         onChange={(e) => setSectionForm({ ...sectionForm, instructor: e.target.value })}
                                                         className="mt-2"
                                                     />
-                                                    <div className="flex items-center gap-4 mt-2">
-                                                        <label className="flex items-center gap-2 text-xs cursor-pointer">
-                                                            <input
-                                                                type="radio"
-                                                                checked={!sectionForm.isOnline}
-                                                                onChange={() => setSectionForm({ ...sectionForm, isOnline: false })}
-                                                                className="accent-accent"
-                                                            />
-                                                            Yüzyüze
-                                                        </label>
-                                                        <label className="flex items-center gap-2 text-xs cursor-pointer">
-                                                            <input
-                                                                type="radio"
-                                                                checked={sectionForm.isOnline}
-                                                                onChange={() => setSectionForm({ ...sectionForm, isOnline: true })}
-                                                                className="accent-accent"
-                                                            />
-                                                            Çevrimiçi
-                                                        </label>
-                                                    </div>
                                                     <div className="flex gap-2 mt-2">
                                                         <Button size="sm" onClick={() => handleAddSection(course.id)}>Ekle</Button>
                                                         <Button size="sm" variant="ghost" onClick={() => setIsAddingSection(null)}>İptal</Button>
