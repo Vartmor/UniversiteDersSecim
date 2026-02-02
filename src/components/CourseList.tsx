@@ -107,7 +107,26 @@ export function CourseList() {
         }
     };
 
-    const handleAddMeeting = (sectionId: string) => {
+    const handleAddMeeting = (sectionId: string, course: { credits: number; sections: { meetings: { startMinute: number; endMinute: number }[] }[] }) => {
+        // Validate: end time must be after start time
+        if (meetingForm.endMinute <= meetingForm.startMinute) {
+            alert('Bitiş saati, başlangıç saatinden sonra olmalıdır!');
+            return;
+        }
+
+        // Calculate total hours for this course (existing + new)
+        const existingMinutes = course.sections.reduce((total, section) => {
+            return total + section.meetings.reduce((sum, m) => sum + (m.endMinute - m.startMinute), 0);
+        }, 0);
+        const newMeetingMinutes = meetingForm.endMinute - meetingForm.startMinute;
+        const totalMinutes = existingMinutes + newMeetingMinutes;
+        const maxMinutes = course.credits * 60; // credits = haftalık saat
+
+        if (totalMinutes > maxMinutes) {
+            alert(`Bu ders için haftalık ${course.credits} saat tanımlanmış. Toplam ${Math.round(totalMinutes / 60 * 10) / 10} saat eklenemez!`);
+            return;
+        }
+
         addMeeting(sectionId, {
             day: meetingForm.day,
             startMinute: meetingForm.startMinute,
@@ -529,7 +548,7 @@ export function CourseList() {
                                                                 />
                                                             </div>
                                                             <div className="flex gap-2 mt-2">
-                                                                <Button size="sm" onClick={() => handleAddMeeting(section.id)}>Ekle</Button>
+                                                                <Button size="sm" onClick={() => handleAddMeeting(section.id, course)}>Ekle</Button>
                                                                 <Button size="sm" variant="ghost" onClick={() => setIsAddingMeeting(null)}>İptal</Button>
                                                             </div>
                                                         </div>
