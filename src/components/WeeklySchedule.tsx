@@ -21,6 +21,7 @@ interface QuickAddInfo {
 export function WeeklySchedule() {
     const [selectedMeeting, setSelectedMeeting] = useState<SelectedMeetingInfo | null>(null);
     const [quickAddInfo, setQuickAddInfo] = useState<QuickAddInfo | null>(null);
+    const [hiddenDays, setHiddenDays] = useState<Set<DayOfWeek>>(new Set());
 
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
@@ -185,6 +186,34 @@ export function WeeklySchedule() {
                         </div>
                     )}
                 </div>
+
+                {/* Day Filter Toggles */}
+                <div className="flex items-center gap-1 mt-2">
+                    <span className="text-xs text-text-secondary mr-2">Günler:</span>
+                    {DAYS.map(day => {
+                        const isHidden = hiddenDays.has(day);
+                        return (
+                            <button
+                                key={day}
+                                onClick={() => {
+                                    const newHiddenDays = new Set(hiddenDays);
+                                    if (isHidden) {
+                                        newHiddenDays.delete(day);
+                                    } else {
+                                        newHiddenDays.add(day);
+                                    }
+                                    setHiddenDays(newHiddenDays);
+                                }}
+                                className={`px-2 py-0.5 text-xs rounded transition-colors ${isHidden
+                                    ? 'bg-gray-100 text-gray-400 line-through'
+                                    : 'bg-accent/10 text-accent font-medium'
+                                    }`}
+                            >
+                                {DAY_SHORT_NAMES[day]}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Schedule Grid */}
@@ -239,7 +268,7 @@ export function WeeklySchedule() {
 
                         {/* Days Columns */}
                         <div className="flex-1 flex">
-                            {DAYS.map((day) => (
+                            {DAYS.filter(day => !hiddenDays.has(day)).map((day) => (
                                 <div key={day} className="flex-1 min-w-[100px]">
                                     {/* Day Header */}
                                     <div className="h-8 flex items-center justify-center border-b border-border bg-bg-secondary rounded-t">
