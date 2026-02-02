@@ -1,86 +1,90 @@
-import { load, Store } from '@tauri-apps/plugin-store';
 import { StateStorage } from 'zustand/middleware';
 
-// Global store instance
-let tauriStore: Store | null = null;
+// Tauri store desteği - dinamik import ile
+let tauriStore: any = null;
 let isInitialized = false;
-let initPromise: Promise<void> | null = null;
+let isTauriAvailable = false;
+
+// Tauri ortamında mıyız kontrol et
+async function checkTauriEnvironment(): Promise<boolean> {
+    try {
+        // @ts-ignore - Tauri global object
+        return typeof window !== 'undefined' && window.__TAURI__ !== undefined;
+    } catch {
+        return false;
+    }
+}
 
 // Store'u başlat
 async function initStore(): Promise<void> {
-    if (isInitialized && tauriStore) return;
-    if (initPromise) return initPromise;
+    if (isInitialized) return;
+    isInitialized = true;
 
-    initPromise = (async () => {
+    isTauriAvailable = await checkTauriEnvironment();
+
+    if (isTauriAvailable) {
         try {
-            // Tauri v2 plugin-store API
+            const { load } = await import('@tauri-apps/plugin-store');
             tauriStore = await load('universite-ders-secim.json');
-            isInitialized = true;
-            console.log('Tauri store initialized');
+            console.log('✓ Tauri store initialized - data will persist');
         } catch (error) {
-            console.error('Failed to initialize Tauri store:', error);
-            isInitialized = true;
+            console.warn('Tauri store not available, using localStorage:', error);
+            isTauriAvailable = false;
         }
-    })();
-
-    return initPromise;
+    } else {
+        console.log('Running in browser mode - using localStorage');
+    }
 }
 
 // Zustand için storage adapter
 export const tauriStorage: StateStorage = {
     getItem: async (name: string): Promise<string | null> => {
         await initStore();
-        if (!tauriStore) {
-            console.warn('Tauri store not available, using localStorage fallback');
-            return localStorage.getItem(name);
+
+        if (isTauriAvailable && tauriStore) {
+            try {
+                const value = await tauriStore.get(name);
+                return value as string ?? null;
+            } catch (error) {
+                console.error('Tauri store read error:', error);
+            }
         }
-        try {
-            const value = await tauriStore.get<string>(name);
-            return value ?? null;
-        } catch (error) {
-            console.error('Error reading from Tauri store:', error);
-            return localStorage.getItem(name);
-        }
+
+        // Fallback to localStorage
+        return localStorage.getItem(name);
     },
 
     setItem: async (name: string, value: string): Promise<void> => {
         await initStore();
-        if (!tauriStore) {
-            console.warn('Tauri store not available, using localStorage fallback');
-            localStorage.setItem(name, value);
-            return;
-        }
-        try {
-            await tauriStore.set(name, value);
-            await tauriStore.save();
-        } catch (error) {
-            console.error('Error writing to Tauri store:', error);
-            localStorage.setItem(name, value);
+
+        // Always save to localStorage as backup
+        localStorage.setItem(name, value);
+
+        if (isTauriAvailable && tauriStore) {
+            try {
+                await tauriStore.set(name, value);
+                await tauriStore.save();
+            } catch (error) {
+                console.error('Tauri store write error:', error);
+            }
         }
     },
 
     removeItem: async (name: string): Promise<void> => {
         await initStore();
-        if (!tauriStore) {
-            localStorage.removeItem(name);
-            return;
-        }
-        try {
-            await tauriStore.delete(name);
-            await tauriStore.save();
-        } catch (error) {
-            console.error('Error removing from Tauri store:', error);
-            localStorage.removeItem(name);
+
+        localStorage.removeItem(name);
+
+        if (isTauriAvailable && tauriStore) {
+            try {
+                await tauriStore.delete(name);
+                await tauriStore.save();
+            } catch (error) {
+                console.error('Tauri store delete error:', error);
+            }
         }
     },
 };
 
-// Store'u manuel kaydet
-export async function saveStore(): Promise<void> {
-    if (tauriStore) {
-        await tauriStore.save();
-    }
-}
-
-// Başlangıçta store'u yükle
+// Başlangıçta ortamı kontrol et
 initStore();
