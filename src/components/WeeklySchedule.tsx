@@ -22,6 +22,7 @@ export function WeeklySchedule() {
     const [selectedMeeting, setSelectedMeeting] = useState<SelectedMeetingInfo | null>(null);
     const [quickAddInfo, setQuickAddInfo] = useState<QuickAddInfo | null>(null);
     const [hiddenDays, setHiddenDays] = useState<Set<DayOfWeek>>(new Set());
+    const [draggedMeeting, setDraggedMeeting] = useState<{ meeting: Meeting; section: Section } | null>(null);
 
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
@@ -31,6 +32,7 @@ export function WeeklySchedule() {
     const removeMeeting = useStore((state) => state.removeMeeting);
     const setSelectedCourse = useStore((state) => state.setSelectedCourse);
     const addMeeting = useStore((state) => state.addMeeting);
+    const updateMeeting = useStore((state) => state.updateMeeting);
 
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
@@ -286,7 +288,7 @@ export function WeeklySchedule() {
                                         {selectedCourseFromStore && TIME_SLOTS.map((slot, i) => (
                                             <div
                                                 key={`clickable-${slot.id}`}
-                                                className="absolute w-full cursor-pointer hover:bg-accent/10 transition-colors group"
+                                                className={`absolute w-full cursor-pointer hover:bg-accent/10 transition-colors group ${draggedMeeting ? 'hover:bg-green-100' : ''}`}
                                                 style={{
                                                     top: `${i * SLOT_HEIGHT}px`,
                                                     height: `${SLOT_HEIGHT}px`
@@ -300,10 +302,30 @@ export function WeeklySchedule() {
                                                         position: { x: rect.left + rect.width / 2, y: rect.top }
                                                     });
                                                 }}
+                                                onDragOver={(e) => {
+                                                    e.preventDefault();
+                                                    e.currentTarget.classList.add('bg-green-100');
+                                                }}
+                                                onDragLeave={(e) => {
+                                                    e.currentTarget.classList.remove('bg-green-100');
+                                                }}
+                                                onDrop={(e) => {
+                                                    e.preventDefault();
+                                                    e.currentTarget.classList.remove('bg-green-100');
+                                                    if (draggedMeeting) {
+                                                        const duration = draggedMeeting.meeting.endMinute - draggedMeeting.meeting.startMinute;
+                                                        updateMeeting(draggedMeeting.section.id, draggedMeeting.meeting.id, {
+                                                            day: day,
+                                                            startMinute: slot.startMinute,
+                                                            endMinute: slot.startMinute + duration
+                                                        });
+                                                        setDraggedMeeting(null);
+                                                    }
+                                                }}
                                             >
                                                 <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <span className="text-xs text-accent font-medium bg-white/80 px-2 py-0.5 rounded shadow-sm">
-                                                        + Ekle
+                                                        {draggedMeeting ? '📍 Bırak' : '+ Ekle'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -324,13 +346,21 @@ export function WeeklySchedule() {
                                             return (
                                                 <div
                                                     key={meeting.id}
-                                                    className={`absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-pointer hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${isOverlapping ? 'ring-2 ring-red-500' : ''}`}
+                                                    draggable
+                                                    onDragStart={(e) => {
+                                                        setDraggedMeeting({ meeting, section });
+                                                        e.dataTransfer.effectAllowed = 'move';
+                                                    }}
+                                                    onDragEnd={() => {
+                                                        setDraggedMeeting(null);
+                                                    }}
+                                                    className={`absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${isOverlapping ? 'ring-2 ring-red-500' : ''} ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
                                                     style={{
                                                         ...getMeetingStyle(meeting),
                                                         backgroundColor: isOverlapping ? '#FEE2E2' : course.color,
                                                         borderLeft: `3px solid ${isOverlapping ? '#EF4444' : (course.color === '#F3F4F6' ? '#9CA3AF' : course.color)}`,
                                                     }}
-                                                    title={isOverlapping ? '⚠️ Bu saat başka bir ders ile çakışıyor!' : undefined}
+                                                    title={isOverlapping ? '⚠️ Bu saat başka bir ders ile çakışıyor!' : 'Sürükleyerek taşı'}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const rect = e.currentTarget.getBoundingClientRect();

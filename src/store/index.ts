@@ -29,6 +29,7 @@ interface AppState {
     removeSection: (courseId: string, sectionId: string) => void;
 
     addMeeting: (sectionId: string, meeting: Omit<Section['meetings'][0], 'id' | 'sectionId'>) => void;
+    updateMeeting: (sectionId: string, meetingId: string, updates: Partial<Section['meetings'][0]>) => void;
     removeMeeting: (sectionId: string, meetingId: string) => void;
 
     updateFilters: (filters: Partial<UserFilters>) => void;
@@ -209,6 +210,27 @@ export const useStore = create<AppState>()(
                             sections: course.sections.map((section) =>
                                 section.id === sectionId
                                     ? { ...section, meetings: [...section.meetings, newMeeting] }
+                                    : section
+                            ),
+                        })),
+                    })),
+                }));
+            },
+
+            updateMeeting: (sectionId, meetingId, updates) => {
+                set((state) => ({
+                    terms: state.terms.map((term) => ({
+                        ...term,
+                        courses: term.courses.map((course) => ({
+                            ...course,
+                            sections: course.sections.map((section) =>
+                                section.id === sectionId
+                                    ? {
+                                        ...section,
+                                        meetings: section.meetings.map((m) =>
+                                            m.id === meetingId ? { ...m, ...updates } : m
+                                        ),
+                                    }
                                     : section
                             ),
                         })),
