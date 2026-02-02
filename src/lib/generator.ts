@@ -50,6 +50,19 @@ function sectionPassesEarlyFilters(
     return true;
 }
 
+// Matematiksel olarak mümkün kombinasyon sayısını hesapla (filtreler hariç)
+export function calculatePossibleCombinations(courses: Course[]): number {
+    if (courses.length === 0) return 0;
+
+    // Her dersin şube sayısının çarpımı
+    let total = 1;
+    for (const course of courses) {
+        if (course.sections.length === 0) return 0;
+        total *= course.sections.length;
+    }
+    return total;
+}
+
 // Backtracking ile tüm geçerli kombinasyonları bul
 export function generateCombinations(
     courses: Course[],

@@ -1,38 +1,6 @@
 import { useStore } from '../store';
 import { Select } from './ui';
-import { DayOfWeek, DAY_NAMES, ScoreWeights, TIME_SLOTS, formatMinutesToTime } from '../types';
-
-// Slider komponenti
-function Slider({
-    label,
-    value,
-    onChange,
-    min = 0,
-    max = 100
-}: {
-    label: string;
-    value: number;
-    onChange: (value: number) => void;
-    min?: number;
-    max?: number;
-}) {
-    return (
-        <div className="space-y-1">
-            <div className="flex items-center justify-between">
-                <span className="text-xs text-text-secondary">{label}</span>
-                <span className="text-xs font-medium text-text-primary">{value}</span>
-            </div>
-            <input
-                type="range"
-                min={min}
-                max={max}
-                value={value}
-                onChange={(e) => onChange(parseInt(e.target.value))}
-                className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
-            />
-        </div>
-    );
-}
+import { DayOfWeek, DAY_NAMES, TIME_SLOTS, formatMinutesToTime } from '../types';
 
 // Başlangıç saati seçenekleri (slot başlangıç saatleri)
 const START_TIME_OPTIONS = [
@@ -56,9 +24,6 @@ export function FilterPanel() {
     const filters = useStore((state) => state.filters);
     const updateFilters = useStore((state) => state.updateFilters);
     const resetFilters = useStore((state) => state.resetFilters);
-    const scoreWeights = useStore((state) => state.scoreWeights);
-    const updateScoreWeights = useStore((state) => state.updateScoreWeights);
-    const resetScoreWeights = useStore((state) => state.resetScoreWeights);
 
     const handleStartTimeChange = (value: string) => {
         updateFilters({ earliestStart: value ? parseInt(value) : null });
@@ -77,10 +42,6 @@ export function FilterPanel() {
         }
     };
 
-    const handleWeightChange = (key: keyof ScoreWeights, value: number) => {
-        updateScoreWeights({ [key]: value });
-    };
-
     return (
         <div className="h-full flex flex-col">
             <div className="p-4 border-b border-border flex items-center justify-between">
@@ -88,7 +49,7 @@ export function FilterPanel() {
                     Filtreler
                 </h2>
                 <button
-                    onClick={() => { resetFilters(); resetScoreWeights(); }}
+                    onClick={resetFilters}
                     className="text-xs text-accent hover:underline"
                 >
                     Sıfırla
@@ -170,35 +131,6 @@ export function FilterPanel() {
                             value={filters.minFreeDays.toString()}
                             onChange={(e) => updateFilters({ minFreeDays: parseInt(e.target.value) })}
                             className="w-16"
-                        />
-                    </div>
-                </div>
-
-                {/* Skor Ağırlıkları */}
-                <div>
-                    <h3 className="text-xs font-medium text-text-secondary uppercase mb-3">
-                        Skor Ağırlıkları
-                    </h3>
-                    <div className="space-y-3">
-                        <Slider
-                            label="Boş gün önemi"
-                            value={scoreWeights.freeDays}
-                            onChange={(v) => handleWeightChange('freeDays', v)}
-                        />
-                        <Slider
-                            label="Geç başlangıç önemi"
-                            value={scoreWeights.lateStart}
-                            onChange={(v) => handleWeightChange('lateStart', v)}
-                        />
-                        <Slider
-                            label="Az boşluk önemi"
-                            value={scoreWeights.gaps}
-                            onChange={(v) => handleWeightChange('gaps', v)}
-                        />
-                        <Slider
-                            label="Kısa gün önemi"
-                            value={scoreWeights.spread}
-                            onChange={(v) => handleWeightChange('spread', v)}
                         />
                     </div>
                 </div>
