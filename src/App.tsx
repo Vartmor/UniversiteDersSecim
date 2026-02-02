@@ -3,7 +3,7 @@ import './index.css';
 import { CourseList, WeeklySchedule, ScheduleList, FilterPanel, ExportModal } from './components';
 import { Button, Select, ToastProvider } from './components/ui';
 import { useStore } from './store';
-import { generateCombinations, calculatePossibleCombinations } from './lib/generator';
+import { generateCombinations } from './lib/generator';
 
 // Yıl seçenekleri
 const currentYear = new Date().getFullYear();
@@ -24,7 +24,6 @@ const SEMESTER_OPTIONS = [
 function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [combinationCount, setCombinationCount] = useState<number | null>(null);
   const [isAddingTerm, setIsAddingTerm] = useState(false);
   const [formYear, setFormYear] = useState(YEAR_OPTIONS[3].value);
   const [formSemester, setFormSemester] = useState('Güz');
@@ -79,19 +78,12 @@ function App() {
       try {
         const results = generateCombinations(courses, filters, scoreWeights);
         setSchedules(results);
-        setCombinationCount(results.length);
       } catch (error) {
         console.error('Kombinasyon üretme hatası:', error);
       } finally {
         setIsGenerating(false);
       }
     }, 10);
-  };
-
-  const handleCalculateCount = () => {
-    if (!activeTerm || !hasCoursesWithSections) return;
-    const count = calculatePossibleCombinations(courses);
-    setCombinationCount(count);
   };
 
   const handleAddTerm = () => {
@@ -183,24 +175,12 @@ function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {combinationCount !== null && (
-              <span className="text-sm text-text-secondary">
-                {combinationCount.toLocaleString()} kombinasyon
-              </span>
-            )}
-            <Button
-              variant="secondary"
-              disabled={!activeTermId || !hasCoursesWithSections}
-              onClick={handleCalculateCount}
-            >
-              Sayı Hesapla
-            </Button>
             <Button
               variant="primary"
               disabled={!activeTermId || !hasCoursesWithSections || isGenerating}
               onClick={handleGenerate}
             >
-              {isGenerating ? 'Oluşturuluyor...' : 'Oluştur'}
+              {isGenerating ? 'Oluşturuluyor...' : 'Kombinasyonları Oluştur'}
             </Button>
             <Button
               variant="secondary"
