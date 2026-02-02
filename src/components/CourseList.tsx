@@ -507,7 +507,7 @@ export function CourseList() {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="text-xs text-text-secondary block mb-1">Öğretim Görevlisi</label>
+                                                        <label className="text-xs text-text-secondary block mb-1">Öğretim Görevlisi <span className="opacity-60">(opsiyonel)</span></label>
                                                         <Input
                                                             placeholder="Dr. Ahmet Yılmaz"
                                                             value={sectionForm.instructor}
