@@ -136,7 +136,7 @@ export function CourseList() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs text-text-secondary block mb-1">Kredi</label>
+                                    <label className="text-xs text-text-secondary block mb-1">Haftalık Saat</label>
                                     <Input
                                         placeholder="3"
                                         type="number"
@@ -237,7 +237,7 @@ export function CourseList() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-text-secondary">
-                                                {course.credits} kredi
+                                                {course.credits} saat
                                             </span>
                                             <span className={`text-xs px-1.5 py-0.5 rounded ${course.required
                                                 ? 'bg-blue-100 text-blue-700'
