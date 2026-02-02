@@ -1,7 +1,6 @@
 import { useStore } from '../store';
-import { Input, Select } from './ui';
-import { DayOfWeek, DAY_NAMES, ScoreWeights } from '../types';
-import { minutesToTime, timeToMinutes } from '../lib/utils';
+import { Select } from './ui';
+import { DayOfWeek, DAY_NAMES, ScoreWeights, TIME_SLOTS, formatMinutesToTime } from '../types';
 
 // Slider komponenti
 function Slider({
@@ -35,6 +34,24 @@ function Slider({
     );
 }
 
+// Başlangıç saati seçenekleri (slot başlangıç saatleri)
+const START_TIME_OPTIONS = [
+    { value: '', label: 'Hepsi' },
+    ...TIME_SLOTS.map(slot => ({
+        value: slot.startMinute.toString(),
+        label: formatMinutesToTime(slot.startMinute)
+    }))
+];
+
+// Bitiş saati seçenekleri (slot bitiş saatleri)
+const END_TIME_OPTIONS = [
+    { value: '', label: 'Hepsi' },
+    ...TIME_SLOTS.map(slot => ({
+        value: slot.endMinute.toString(),
+        label: formatMinutesToTime(slot.endMinute)
+    }))
+];
+
 export function FilterPanel() {
     const filters = useStore((state) => state.filters);
     const updateFilters = useStore((state) => state.updateFilters);
@@ -43,12 +60,12 @@ export function FilterPanel() {
     const updateScoreWeights = useStore((state) => state.updateScoreWeights);
     const resetScoreWeights = useStore((state) => state.resetScoreWeights);
 
-    const handleTimeChange = (field: 'earliestStart' | 'latestEnd', value: string) => {
-        if (value) {
-            updateFilters({ [field]: timeToMinutes(value) });
-        } else {
-            updateFilters({ [field]: null });
-        }
+    const handleStartTimeChange = (value: string) => {
+        updateFilters({ earliestStart: value ? parseInt(value) : null });
+    };
+
+    const handleEndTimeChange = (value: string) => {
+        updateFilters({ latestEnd: value ? parseInt(value) : null });
     };
 
     const handleFreeDayToggle = (day: DayOfWeek) => {
@@ -84,21 +101,25 @@ export function FilterPanel() {
                     <h3 className="text-xs font-medium text-text-secondary uppercase mb-2">
                         Zaman Aralığı
                     </h3>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                         <div>
-                            <label className="text-xs text-text-secondary">Başlangıç</label>
-                            <Input
-                                type="time"
-                                value={filters.earliestStart !== null ? minutesToTime(filters.earliestStart) : ''}
-                                onChange={(e) => handleTimeChange('earliestStart', e.target.value)}
+                            <label className="text-xs text-text-secondary block mb-1">
+                                En erken başlangıç
+                            </label>
+                            <Select
+                                options={START_TIME_OPTIONS}
+                                value={filters.earliestStart?.toString() || ''}
+                                onChange={(e) => handleStartTimeChange(e.target.value)}
                             />
                         </div>
                         <div>
-                            <label className="text-xs text-text-secondary">Bitiş</label>
-                            <Input
-                                type="time"
-                                value={filters.latestEnd !== null ? minutesToTime(filters.latestEnd) : ''}
-                                onChange={(e) => handleTimeChange('latestEnd', e.target.value)}
+                            <label className="text-xs text-text-secondary block mb-1">
+                                En geç bitiş
+                            </label>
+                            <Select
+                                options={END_TIME_OPTIONS}
+                                value={filters.latestEnd?.toString() || ''}
+                                onChange={(e) => handleEndTimeChange(e.target.value)}
                             />
                         </div>
                     </div>
@@ -115,8 +136,8 @@ export function FilterPanel() {
                                 key={day}
                                 onClick={() => handleFreeDayToggle(day)}
                                 className={`px-2 py-1 text-xs rounded transition-colors ${filters.freeDays.includes(day)
-                                        ? 'bg-accent text-white'
-                                        : 'bg-gray-100 text-text-secondary hover:bg-gray-200'
+                                    ? 'bg-accent text-white'
+                                    : 'bg-gray-100 text-text-secondary hover:bg-gray-200'
                                     }`}
                             >
                                 {DAY_NAMES[day].slice(0, 3)}
