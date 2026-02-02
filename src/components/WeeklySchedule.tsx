@@ -348,7 +348,15 @@ export function WeeklySchedule() {
                                                 key={slot.id}
                                                 className={`absolute w-full border-t border-gray-100 pointer-events-none ${slot.id === 5 ? 'bg-gray-100/70' : ''}`}
                                                 style={{ top: `${i * SLOT_HEIGHT}px`, height: `${SLOT_HEIGHT}px` }}
-                                            />
+                                            >
+                                                {slot.id === 5 && (
+                                                    <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none">
+                                                        <span className="text-gray-300 text-sm font-semibold tracking-widest uppercase">
+                                                            ÖĞLE ARASI
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         ))}
 
                                         {/* Meeting blocks */}
