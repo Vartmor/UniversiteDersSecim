@@ -29,6 +29,7 @@ export function CourseList() {
     const [sectionForm, setSectionForm] = useState({
         name: '',
         instructor: '',
+        isOnline: false,
     });
 
     const [meetingForm, setMeetingForm] = useState({
@@ -62,8 +63,9 @@ export function CourseList() {
                 courseId,
                 name: sectionForm.name.trim(),
                 instructor: sectionForm.instructor.trim() || undefined,
+                isOnline: sectionForm.isOnline,
             });
-            setSectionForm({ name: '', instructor: '' });
+            setSectionForm({ name: '', instructor: '', isOnline: false });
             setIsAddingSection(null);
         }
     };
@@ -229,7 +231,12 @@ export function CourseList() {
                                             {course.sections.map((section) => (
                                                 <div key={section.id} className="bg-bg-secondary rounded p-2">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium">{section.name}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-medium">{section.name}</span>
+                                                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${section.isOnline ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
+                                                                {section.isOnline ? 'Çevrimiçi' : 'Yüzyüze'}
+                                                            </span>
+                                                        </div>
                                                         {section.instructor && (
                                                             <span className="text-xs text-text-secondary">{section.instructor}</span>
                                                         )}
@@ -314,6 +321,26 @@ export function CourseList() {
                                                         onChange={(e) => setSectionForm({ ...sectionForm, instructor: e.target.value })}
                                                         className="mt-2"
                                                     />
+                                                    <div className="flex items-center gap-4 mt-2">
+                                                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                checked={!sectionForm.isOnline}
+                                                                onChange={() => setSectionForm({ ...sectionForm, isOnline: false })}
+                                                                className="accent-accent"
+                                                            />
+                                                            Yüzyüze
+                                                        </label>
+                                                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                checked={sectionForm.isOnline}
+                                                                onChange={() => setSectionForm({ ...sectionForm, isOnline: true })}
+                                                                className="accent-accent"
+                                                            />
+                                                            Çevrimiçi
+                                                        </label>
+                                                    </div>
                                                     <div className="flex gap-2 mt-2">
                                                         <Button size="sm" onClick={() => handleAddSection(course.id)}>Ekle</Button>
                                                         <Button size="sm" variant="ghost" onClick={() => setIsAddingSection(null)}>İptal</Button>

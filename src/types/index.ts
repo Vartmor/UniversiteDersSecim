@@ -20,6 +20,7 @@ export interface Section {
     name: string; // "1. Şube" gibi
     instructor?: string;
     capacity?: number;
+    isOnline: boolean; // true = çevrimiçi, false = yüzyüze
     meetings: Meeting[];
 }
 

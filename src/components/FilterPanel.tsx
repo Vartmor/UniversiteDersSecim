@@ -114,7 +114,7 @@ export function FilterPanel() {
                         </div>
                         <div>
                             <label className="text-xs text-text-secondary block mb-1">
-                                En geç bitiş
+                                Yüzyüze derslerin en geç bitişi
                             </label>
                             <Select
                                 options={END_TIME_OPTIONS}
