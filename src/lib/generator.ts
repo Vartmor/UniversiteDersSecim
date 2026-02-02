@@ -25,14 +25,15 @@ function sectionOverlapsWithSelection(
 // Bir section'ın erken filtrelerle uyumlu olup olmadığını kontrol et
 function sectionPassesEarlyFilters(
     section: Section,
-    filters: UserFilters
+    filters: UserFilters,
+    course: Course
 ): boolean {
     for (const meeting of section.meetings) {
         if (filters.earliestStart !== null && meeting.startMinute < filters.earliestStart) {
             return false;
         }
         // latestEnd sadece yüzyüze (isOnline=false) dersler için geçerli
-        if (!section.isOnline && filters.latestEnd !== null && meeting.endMinute > filters.latestEnd) {
+        if (!course.isOnline && filters.latestEnd !== null && meeting.endMinute > filters.latestEnd) {
             return false;
         }
         if (filters.freeDays.includes(meeting.day)) {
@@ -79,7 +80,7 @@ export function generateCombinations(
         const course = sortedCourses[courseIndex];
 
         for (const section of course.sections) {
-            if (!sectionPassesEarlyFilters(section, filters)) {
+            if (!sectionPassesEarlyFilters(section, filters, course)) {
                 continue;
             }
 
