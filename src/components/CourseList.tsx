@@ -525,23 +525,13 @@ export function CourseList() {
                                                     {/* Add Meeting */}
                                                     {isAddingMeeting === section.id ? (
                                                         <div className="mt-2 p-2 bg-white rounded border border-border">
-                                                            <div className="grid grid-cols-2 gap-2">
-                                                                <div>
-                                                                    <label className="text-xs text-text-secondary block mb-1">Gün</label>
-                                                                    <Select
-                                                                        options={Object.entries(DAY_NAMES).map(([value, label]) => ({ value, label }))}
-                                                                        value={meetingForm.day}
-                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, day: e.target.value as DayOfWeek })}
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <label className="text-xs text-text-secondary block mb-1">Derslik <span className="opacity-60">(ops.)</span></label>
-                                                                    <Input
-                                                                        placeholder="D201"
-                                                                        value={meetingForm.location}
-                                                                        onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
-                                                                    />
-                                                                </div>
+                                                            <div>
+                                                                <label className="text-xs text-text-secondary block mb-1">Gün</label>
+                                                                <Select
+                                                                    options={Object.entries(DAY_NAMES).map(([value, label]) => ({ value, label }))}
+                                                                    value={meetingForm.day}
+                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, day: e.target.value as DayOfWeek })}
+                                                                />
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-2 mt-2">
                                                                 <div>
@@ -573,6 +563,14 @@ export function CourseList() {
                                                                         onChange={(e) => setMeetingForm({ ...meetingForm, endMinute: parseInt(e.target.value) })}
                                                                     />
                                                                 </div>
+                                                            </div>
+                                                            <div className="mt-2">
+                                                                <label className="text-xs text-text-secondary block mb-1">Derslik <span className="opacity-60">(opsiyonel)</span></label>
+                                                                <Input
+                                                                    placeholder="D201"
+                                                                    value={meetingForm.location}
+                                                                    onChange={(e) => setMeetingForm({ ...meetingForm, location: e.target.value })}
+                                                                />
                                                             </div>
                                                             <div className="flex gap-2 mt-2">
                                                                 <Button size="sm" onClick={() => handleAddMeeting(section.id)}>Ekle</Button>
