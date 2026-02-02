@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './index.css';
 import { CourseList, WeeklySchedule, ScheduleList, FilterPanel, ExportModal } from './components';
 import { Button, Select } from './components/ui';
@@ -27,6 +27,8 @@ function App() {
   const [isAddingTerm, setIsAddingTerm] = useState(false);
   const [formYear, setFormYear] = useState(YEAR_OPTIONS[3].value);
   const [formSemester, setFormSemester] = useState('Güz');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const activeTermId = useStore((state) => state.activeTermId);
   const terms = useStore((state) => state.terms);
@@ -42,6 +44,17 @@ function App() {
   const activeTerm = terms.find((t) => t.id === activeTermId);
   const courses = activeTerm?.courses || [];
   const hasCoursesWithSections = courses.some(c => c.sections.length > 0);
+
+  // Close settings dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setIsSettingsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleGenerate = () => {
     if (!activeTerm || !hasCoursesWithSections) return;
@@ -166,6 +179,45 @@ function App() {
           >
             Dışa Aktar
           </Button>
+
+          {/* Settings Dropdown */}
+          <div className="relative" ref={settingsRef}>
+            <button
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className="p-2 text-text-secondary hover:text-text-primary hover:bg-gray-100 rounded-lg transition-colors"
+              title="Ayarlar"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+
+            {isSettingsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-border py-2 z-50">
+                <div className="px-4 py-2 border-b border-border">
+                  <h3 className="text-sm font-semibold text-text-primary">Kısayollar</h3>
+                </div>
+                <div className="px-4 py-2 space-y-1 text-xs text-text-secondary">
+                  <div className="flex justify-between">
+                    <span>Ders Ekle</span>
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">Ctrl+N</kbd>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Kombinasyon Oluştur</span>
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">Ctrl+G</kbd>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Dışa Aktar</span>
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">Ctrl+E</kbd>
+                  </div>
+                </div>
+                <div className="border-t border-border mt-2 pt-2 px-4">
+                  <span className="text-[10px] text-gray-400">v0.1.0 - MVP</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -199,16 +251,6 @@ function App() {
           </div>
         </aside>
       </div>
-
-      {/* Footer */}
-      <footer className="h-8 px-4 border-t border-border flex items-center justify-between bg-white flex-shrink-0">
-        <span className="text-xs text-text-secondary">
-          v0.1.0 - MVP
-        </span>
-        <span className="text-xs text-text-secondary">
-          Ctrl+N: Ders Ekle | Ctrl+G: Kombinasyon Oluştur | Ctrl+E: Dışa Aktar
-        </span>
-      </footer>
 
       {/* Export Modal */}
       <ExportModal
