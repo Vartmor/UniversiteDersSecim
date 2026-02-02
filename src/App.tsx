@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import './index.css';
-import { TermSidebar, CourseList, WeeklySchedule, ScheduleList, FilterPanel } from './components';
+import { TermSidebar, CourseList, WeeklySchedule, ScheduleList, FilterPanel, ExportModal } from './components';
 import { Button } from './components/ui';
 import { useStore } from './store';
 import { generateCombinations } from './lib/generator';
 
 function App() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const activeTermId = useStore((state) => state.activeTermId);
   const terms = useStore((state) => state.terms);
@@ -64,7 +65,10 @@ function App() {
           >
             {isGenerating ? 'Oluşturuluyor...' : 'Kombinasyonları Oluştur'}
           </Button>
-          <Button variant="secondary" disabled={schedules.length === 0}>
+          <Button
+            variant="secondary"
+            onClick={() => setIsExportModalOpen(true)}
+          >
             Dışa Aktar
           </Button>
         </div>
@@ -115,6 +119,12 @@ function App() {
           Ctrl+N: Ders Ekle | Ctrl+G: Kombinasyon Oluştur | Ctrl+E: Dışa Aktar
         </span>
       </footer>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </div>
   );
 }

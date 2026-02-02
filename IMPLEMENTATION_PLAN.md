@@ -699,29 +699,29 @@ gantt
 
 ---
 
-#### Sprint 3: Filtre & Skor (2-3 Hafta) - DEVAM EDİYOR
+#### Sprint 3: Filtre & Skor & Storage (TAMAMLANDI)
 
 - [x] **Filtre Paneli UI**
   - [x] Erken/geç saat filtreleri
   - [x] Boş gün seçimi
   - [x] Öğle arası toggle
   - [x] Minimum boş gün seçimi
-  - [ ] Max gap slider (şu an input olarak var)
 
 - [x] **Skor Fonksiyonu**
   - [x] Temel skor hesaplama (boş gün, geç başlangıç, boşluk, spread)
-  - [x] Ağırlık parametreleri (sabit değerler)
+  - [x] Dinamik ağırlık parametreleri (ScoreWeights type)
   - [x] Sıralama algoritması
-  - [ ] UI'da slider ile ağırlık ayarlama
+  - [x] UI'da slider ile ağırlık ayarlama
 
-- [x] **Kaydetme Özelliği**
-  - [x] "Pinned schedule" işaretleme (favori yıldız)
-  - [x] LocalStorage'a otomatik kaydetme
-  - [ ] Karşılaştırma görünümü
+- [x] **Storage Entegrasyonu**
+  - [x] Tauri Store Plugin kurulumu
+  - [x] Hybrid adapter (Tauri + localStorage)
+  - [x] Zustand persist middleware
+  - [x] Pinned schedule (favori yıldız)
 
 ---
 
-#### Sprint 4: Export & Polish (2-3 Hafta)
+#### Sprint 4: Export & Polish (DEVAM EDİYOR)
 
 - [ ] **Import/Export**
   - [ ] JSON export
@@ -734,7 +734,6 @@ gantt
   - [ ] Form validasyonları
   - [ ] Loading states
   - [ ] Error handling
-  - [ ] Onboarding flow
 
 ---
 
