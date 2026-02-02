@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store';
-import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, Section, TIME_SLOTS, formatMinutesToTime } from '../types';
+import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, Section, TIME_SLOTS, formatMinutesToTime, MeetingType } from '../types';
 
 const DAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const SLOT_HEIGHT = 52; // pixels per time slot
@@ -12,8 +12,15 @@ interface SelectedMeetingInfo {
     position: { x: number; y: number };
 }
 
+interface QuickAddInfo {
+    day: DayOfWeek;
+    slotIndex: number;
+    position: { x: number; y: number };
+}
+
 export function WeeklySchedule() {
     const [selectedMeeting, setSelectedMeeting] = useState<SelectedMeetingInfo | null>(null);
+    const [quickAddInfo, setQuickAddInfo] = useState<QuickAddInfo | null>(null);
 
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
@@ -22,6 +29,7 @@ export function WeeklySchedule() {
     const selectedScheduleId = useStore((state) => state.selectedScheduleId);
     const removeMeeting = useStore((state) => state.removeMeeting);
     const setSelectedCourse = useStore((state) => state.setSelectedCourse);
+    const addMeeting = useStore((state) => state.addMeeting);
 
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
@@ -245,11 +253,38 @@ export function WeeklySchedule() {
                                         className="relative border-l border-border"
                                         style={{ height: `${TIME_SLOTS.length * SLOT_HEIGHT}px` }}
                                     >
+                                        {/* Clickable slot overlays for quick add */}
+                                        {selectedCourseFromStore && TIME_SLOTS.map((slot, i) => (
+                                            <div
+                                                key={`clickable-${slot.id}`}
+                                                className="absolute w-full cursor-pointer hover:bg-accent/10 transition-colors group"
+                                                style={{
+                                                    top: `${i * SLOT_HEIGHT}px`,
+                                                    height: `${SLOT_HEIGHT}px`
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                    setQuickAddInfo({
+                                                        day,
+                                                        slotIndex: i,
+                                                        position: { x: rect.left + rect.width / 2, y: rect.top }
+                                                    });
+                                                }}
+                                            >
+                                                <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="text-xs text-accent font-medium bg-white/80 px-2 py-0.5 rounded shadow-sm">
+                                                        + Ekle
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+
                                         {/* Slot lines */}
                                         {TIME_SLOTS.map((slot, i) => (
                                             <div
                                                 key={slot.id}
-                                                className="absolute w-full border-t border-gray-100"
+                                                className="absolute w-full border-t border-gray-100 pointer-events-none"
                                                 style={{ top: `${i * SLOT_HEIGHT}px` }}
                                             />
                                         ))}
@@ -387,6 +422,62 @@ export function WeeklySchedule() {
                             >
                                 Sil
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Quick Add Popup */}
+            {quickAddInfo && selectedCourseFromStore && (
+                <div
+                    className="fixed inset-0 z-50"
+                    onClick={() => setQuickAddInfo(null)}
+                >
+                    <div
+                        className="absolute bg-white rounded-lg shadow-xl border border-border p-3 min-w-[200px]"
+                        style={{
+                            left: Math.min(quickAddInfo.position.x - 100, window.innerWidth - 220),
+                            top: Math.min(quickAddInfo.position.y + 10, window.innerHeight - 200),
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-text-primary">Hızlı Ekle</h4>
+                            <button
+                                onClick={() => setQuickAddInfo(null)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <p className="text-xs text-text-secondary mb-2">
+                            {DAY_SHORT_NAMES[quickAddInfo.day]} {formatMinutesToTime(TIME_SLOTS[quickAddInfo.slotIndex].startMinute)}
+                        </p>
+                        <div className="text-xs text-text-secondary mb-2">Şube seçin:</div>
+                        <div className="space-y-1 max-h-[150px] overflow-y-auto">
+                            {selectedCourseFromStore.sections.map(section => (
+                                <button
+                                    key={section.id}
+                                    onClick={() => {
+                                        const slot = TIME_SLOTS[quickAddInfo.slotIndex];
+                                        addMeeting(section.id, {
+                                            day: quickAddInfo.day,
+                                            startMinute: slot.startMinute,
+                                            endMinute: slot.endMinute,
+                                            type: 'Ders' as MeetingType,
+                                        });
+                                        setQuickAddInfo(null);
+                                    }}
+                                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent/10 transition-colors"
+                                >
+                                    {section.name}
+                                    {section.instructor && (
+                                        <span className="text-xs text-text-secondary ml-1">({section.instructor})</span>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>
