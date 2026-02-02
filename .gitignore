@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Eski alt klasör (taşındı)
+obs-scheduler
+
+# Tauri build
+src-tauri/target
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
