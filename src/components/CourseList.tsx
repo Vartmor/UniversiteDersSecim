@@ -13,6 +13,7 @@ export function CourseList() {
     const updateCourse = useStore((state) => state.updateCourse);
     const removeCourse = useStore((state) => state.removeCourse);
     const addSection = useStore((state) => state.addSection);
+    const removeSection = useStore((state) => state.removeSection);
     const addMeeting = useStore((state) => state.addMeeting);
 
     const [isAddingCourse, setIsAddingCourse] = useState(false);
@@ -392,12 +393,27 @@ export function CourseList() {
                                         {/* Sections */}
                                         <div className="mt-3 space-y-2">
                                             {course.sections.map((section) => (
-                                                <div key={section.id} className="bg-bg-secondary rounded p-2">
+                                                <div key={section.id} className="bg-bg-secondary rounded p-2 group">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium">{section.name}</span>
-                                                        {section.instructor && (
-                                                            <span className="text-xs text-text-secondary">{section.instructor}</span>
-                                                        )}
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-medium">{section.name}</span>
+                                                            {section.instructor && (
+                                                                <span className="text-xs text-text-secondary">{section.instructor}</span>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm(`"${section.name}" şubesini silmek istediğinizden emin misiniz?`)) {
+                                                                    removeSection(course.id, section.id);
+                                                                }
+                                                            }}
+                                                            className="p-1 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            title="Şubeyi sil"
+                                                        >
+                                                            <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                     {/* Meetings */}
                                                     <div className="mt-2 space-y-1">
