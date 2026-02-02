@@ -10,11 +10,13 @@ export function CourseList() {
     const selectedCourseId = useStore((state) => state.selectedCourseId);
     const setSelectedCourse = useStore((state) => state.setSelectedCourse);
     const addCourse = useStore((state) => state.addCourse);
+    const updateCourse = useStore((state) => state.updateCourse);
     const removeCourse = useStore((state) => state.removeCourse);
     const addSection = useStore((state) => state.addSection);
     const addMeeting = useStore((state) => state.addMeeting);
 
     const [isAddingCourse, setIsAddingCourse] = useState(false);
+    const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
     const [isAddingSection, setIsAddingSection] = useState<string | null>(null);
     const [isAddingMeeting, setIsAddingMeeting] = useState<string | null>(null);
 
@@ -56,6 +58,38 @@ export function CourseList() {
             setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
             setIsAddingCourse(false);
         }
+    };
+
+    const startEditingCourse = (course: typeof courses[0]) => {
+        setCourseForm({
+            code: course.code,
+            name: course.name,
+            credits: course.credits,
+            required: course.required,
+            isOnline: course.isOnline,
+        });
+        setEditingCourseId(course.id);
+        setIsAddingCourse(false);
+    };
+
+    const handleUpdateCourse = () => {
+        if (editingCourseId && courseForm.code.trim() && courseForm.name.trim()) {
+            updateCourse(editingCourseId, {
+                code: courseForm.code.trim(),
+                name: courseForm.name.trim(),
+                credits: courseForm.credits,
+                required: courseForm.required,
+                isOnline: courseForm.isOnline,
+            });
+            setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
+            setEditingCourseId(null);
+        }
+    };
+
+    const cancelEdit = () => {
+        setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false });
+        setEditingCourseId(null);
+        setIsAddingCourse(false);
     };
 
     const handleAddSection = (courseId: string) => {
@@ -219,44 +253,138 @@ export function CourseList() {
                                     : 'border-border bg-white hover:border-gray-300'
                                     }`}
                             >
-                                {/* Course Header */}
-                                <button
-                                    onClick={() => setSelectedCourse(selectedCourseId === course.id ? null : course.id)}
-                                    className="w-full p-3 text-left"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className="w-3 h-3 rounded-sm flex-shrink-0"
-                                                style={{ backgroundColor: course.color }}
-                                            />
+                                {editingCourseId === course.id ? (
+                                    // Edit form
+                                    <div className="p-3 space-y-3">
+                                        <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <span className="font-medium text-sm">{course.code}</span>
-                                                <span className="text-text-secondary text-sm ml-2">{course.name}</span>
+                                                <label className="text-xs text-text-secondary block mb-1">Ders Kodu</label>
+                                                <Input
+                                                    placeholder="CSE101"
+                                                    value={courseForm.code}
+                                                    onChange={(e) => setCourseForm({ ...courseForm, code: e.target.value })}
+                                                    autoFocus
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-text-secondary block mb-1">Haftalık Saat</label>
+                                                <Input
+                                                    placeholder="3"
+                                                    type="number"
+                                                    min={1}
+                                                    max={10}
+                                                    value={courseForm.credits}
+                                                    onChange={(e) => setCourseForm({ ...courseForm, credits: parseInt(e.target.value) || 3 })}
+                                                />
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-text-secondary">
-                                                {course.credits} saat
-                                            </span>
-                                            <span className={`text-xs px-1.5 py-0.5 rounded ${course.required
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : 'bg-gray-100 text-gray-600'
-                                                }`}>
-                                                {course.required ? 'Zorunlu' : 'Seçmeli'}
-                                            </span>
-                                            <span className={`text-xs px-1.5 py-0.5 rounded ${course.isOnline
-                                                ? 'bg-purple-100 text-purple-700'
-                                                : 'bg-green-100 text-green-700'
-                                                }`}>
-                                                {course.isOnline ? 'Çevrimiçi' : 'Yüzyüze'}
-                                            </span>
+                                        <div>
+                                            <label className="text-xs text-text-secondary block mb-1">Ders Adı</label>
+                                            <Input
+                                                placeholder="Programlamaya Giriş"
+                                                value={courseForm.name}
+                                                onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                <input type="radio" checked={courseForm.required} onChange={() => setCourseForm({ ...courseForm, required: true })} className="accent-accent" />
+                                                Zorunlu
+                                            </label>
+                                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                <input type="radio" checked={!courseForm.required} onChange={() => setCourseForm({ ...courseForm, required: false })} className="accent-accent" />
+                                                Seçmeli
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                <input type="radio" checked={!courseForm.isOnline} onChange={() => setCourseForm({ ...courseForm, isOnline: false })} className="accent-accent" />
+                                                Yüzyüze
+                                            </label>
+                                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                <input type="radio" checked={courseForm.isOnline} onChange={() => setCourseForm({ ...courseForm, isOnline: true })} className="accent-accent" />
+                                                Çevrimiçi
+                                            </label>
+                                        </div>
+                                        <div className="flex gap-2 pt-2">
+                                            <Button size="sm" onClick={handleUpdateCourse}>Kaydet</Button>
+                                            <Button size="sm" variant="ghost" onClick={cancelEdit}>İptal</Button>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-text-secondary mt-1">
-                                        {course.sections.length} şube
-                                    </p>
-                                </button>
+                                ) : (
+                                    // Normal view
+                                    <>
+                                        {/* Course Header */}
+                                        <div className="group relative">
+                                            <button
+                                                onClick={() => setSelectedCourse(selectedCourseId === course.id ? null : course.id)}
+                                                className="w-full p-3 text-left"
+                                            >
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <div
+                                                            className="w-3 h-3 rounded-sm flex-shrink-0"
+                                                            style={{ backgroundColor: course.color }}
+                                                        />
+                                                        <div>
+                                                            <span className="font-medium text-sm">{course.code}</span>
+                                                            <span className="text-text-secondary text-sm ml-2">{course.name}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs text-text-secondary">
+                                                            {course.credits} saat
+                                                        </span>
+                                                        <span className={`text-xs px-1.5 py-0.5 rounded ${course.required
+                                                            ? 'bg-blue-100 text-blue-700'
+                                                            : 'bg-gray-100 text-gray-600'
+                                                            }`}>
+                                                            {course.required ? 'Zorunlu' : 'Seçmeli'}
+                                                        </span>
+                                                        <span className={`text-xs px-1.5 py-0.5 rounded ${course.isOnline
+                                                            ? 'bg-purple-100 text-purple-700'
+                                                            : 'bg-green-100 text-green-700'
+                                                            }`}>
+                                                            {course.isOnline ? 'Çevrimiçi' : 'Yüzyüze'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-text-secondary mt-1">
+                                                    {course.sections.length} şube
+                                                </p>
+                                            </button>
+                                            {/* Action buttons */}
+                                            <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        startEditingCourse(course);
+                                                    }}
+                                                    className="p-1 hover:bg-blue-100 rounded"
+                                                    title="Düzenle"
+                                                >
+                                                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (confirm(`"${course.code} - ${course.name}" dersini silmek istediğinizden emin misiniz?`)) {
+                                                            removeCourse(course.id);
+                                                        }
+                                                    }}
+                                                    className="p-1 hover:bg-red-100 rounded"
+                                                    title="Sil"
+                                                >
+                                                    <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* Expanded Content */}
                                 {selectedCourseId === course.id && (

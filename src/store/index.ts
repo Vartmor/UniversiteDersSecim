@@ -15,6 +15,7 @@ interface AppState {
     isGenerating: boolean;
 
     addTerm: (name: string) => void;
+    updateTerm: (id: string, name: string) => void;
     removeTerm: (id: string) => void;
     setActiveTerm: (id: string | null) => void;
 
@@ -76,6 +77,14 @@ export const useStore = create<AppState>()(
                 set((state) => ({
                     terms: [...state.terms, newTerm],
                     activeTermId: newTerm.id,
+                }));
+            },
+
+            updateTerm: (id, name) => {
+                set((state) => ({
+                    terms: state.terms.map((t) =>
+                        t.id === id ? { ...t, name } : t
+                    ),
                 }));
             },
 
