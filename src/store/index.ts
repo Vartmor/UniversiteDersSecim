@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Term, Course, Section, Schedule, UserFilters, ScoreWeights, DEFAULT_SCORE_WEIGHTS, COURSE_COLORS } from '../types';
 import { tauriStorage } from '../lib/tauriStorage';
+import { showGlobalToast } from '../components/ui';
 
 // Uygulama durumu
 interface AppState {
@@ -217,7 +218,7 @@ export const useStore = create<AppState>()(
                 });
 
                 if (isDuplicate) {
-                    console.warn('Bu slot zaten ekli!');
+                    showGlobalToast('Bu slot zaten ekli!', 'warning');
                     return; // Don't add duplicate
                 }
 
