@@ -10,6 +10,7 @@ export function TermSidebar() {
     const activeTermId = useStore((state) => state.activeTermId);
     const addTerm = useStore((state) => state.addTerm);
     const setActiveTerm = useStore((state) => state.setActiveTerm);
+    const removeTerm = useStore((state) => state.removeTerm);
 
     const handleAddTerm = () => {
         if (newTermName.trim()) {
@@ -46,10 +47,10 @@ export function TermSidebar() {
                 ) : (
                     <ul className="space-y-1">
                         {terms.map((term) => (
-                            <li key={term.id}>
+                            <li key={term.id} className="group relative">
                                 <button
                                     onClick={() => setActiveTerm(term.id)}
-                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors group flex items-center justify-between ${activeTermId === term.id
+                                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between ${activeTermId === term.id
                                         ? 'bg-accent text-white'
                                         : 'text-text-primary hover:bg-bg-secondary'
                                         }`}
@@ -58,6 +59,21 @@ export function TermSidebar() {
                                     <span className="text-xs opacity-60">
                                         {term.courses.length} ders
                                     </span>
+                                </button>
+                                {/* Delete button */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (confirm(`"${term.name}" dönemini silmek istediğinizden emin misiniz?`)) {
+                                            removeTerm(term.id);
+                                        }
+                                    }}
+                                    className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded"
+                                    title="Dönemi sil"
+                                >
+                                    <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
                                 </button>
                             </li>
                         ))}
