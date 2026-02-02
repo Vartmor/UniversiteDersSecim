@@ -196,6 +196,31 @@ export const useStore = create<AppState>()(
             },
 
             addMeeting: (sectionId, meetingData) => {
+                // Check for duplicate: same section, same day, overlapping time
+                const state = get();
+                let isDuplicate = false;
+
+                state.terms.forEach(term => {
+                    term.courses.forEach(course => {
+                        course.sections.forEach(section => {
+                            if (section.id === sectionId) {
+                                section.meetings.forEach(m => {
+                                    if (m.day === meetingData.day &&
+                                        m.startMinute === meetingData.startMinute &&
+                                        m.endMinute === meetingData.endMinute) {
+                                        isDuplicate = true;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+
+                if (isDuplicate) {
+                    console.warn('Bu slot zaten ekli!');
+                    return; // Don't add duplicate
+                }
+
                 const newMeeting = {
                     ...meetingData,
                     id: generateId(),
