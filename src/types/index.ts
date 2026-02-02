@@ -44,13 +44,29 @@ export interface Term {
 
 // Kullanıcı Filtreleri
 export interface UserFilters {
-    earliestStart: number | null; // En erken ders saati (dakika)
-    latestEnd: number | null; // En geç bitiş saati (dakika)
-    freeDays: DayOfWeek[]; // Boş olması istenen günler
-    maxGap: number | null; // Maksimum boşluk (dakika)
-    lunchBreak: boolean; // Öğle arası (12:00-13:00) boş olsun mu?
-    minFreeDays: number; // Minimum boş gün sayısı
+    earliestStart: number | null;
+    latestEnd: number | null;
+    freeDays: DayOfWeek[];
+    maxGap: number | null;
+    lunchBreak: boolean;
+    minFreeDays: number;
 }
+
+// Skor Ağırlıkları (kullanıcı ayarlayabilir)
+export interface ScoreWeights {
+    freeDays: number;    // Boş gün önemi (0-100)
+    lateStart: number;   // Geç başlangıç önemi (0-100)
+    gaps: number;        // Boşluk azaltma önemi (0-100)
+    spread: number;      // Kampüs süresi azaltma önemi (0-100)
+}
+
+// Varsayılan skor ağırlıkları
+export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
+    freeDays: 80,
+    lateStart: 50,
+    gaps: 40,
+    spread: 30,
+};
 
 // Kombinasyon / Oluşturulan Program
 export interface Schedule {
@@ -63,11 +79,11 @@ export interface Schedule {
 
 // Program İstatistikleri
 export interface ScheduleStats {
-    totalGaps: number; // Toplam boşluk (dakika)
-    freeDays: number; // Boş gün sayısı
-    earliestStart: number; // En erken ders başlangıcı
-    latestEnd: number; // En geç ders bitişi
-    totalSpread: number; // Toplam kampüste kalma süresi
+    totalGaps: number;
+    freeDays: number;
+    earliestStart: number;
+    latestEnd: number;
+    totalSpread: number;
 }
 
 // Renk paleti

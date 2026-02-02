@@ -11,6 +11,7 @@ function App() {
   const activeTermId = useStore((state) => state.activeTermId);
   const terms = useStore((state) => state.terms);
   const filters = useStore((state) => state.filters);
+  const scoreWeights = useStore((state) => state.scoreWeights);
   const setSchedules = useStore((state) => state.setSchedules);
   const schedules = useStore((state) => state.schedules);
 
@@ -23,10 +24,9 @@ function App() {
 
     setIsGenerating(true);
 
-    // Asenkron olarak çalıştır (UI donmasını önle)
     setTimeout(() => {
       try {
-        const results = generateCombinations(courses, filters);
+        const results = generateCombinations(courses, filters, scoreWeights);
         setSchedules(results);
       } catch (error) {
         console.error('Kombinasyon üretme hatası:', error);
@@ -90,12 +90,12 @@ function App() {
         {/* Right Panel - Filters & Results */}
         <aside className="w-72 border-l border-border bg-white flex-shrink-0 flex flex-col">
           {/* Filters */}
-          <div className="h-1/2 border-b border-border overflow-hidden">
+          <div className="flex-1 border-b border-border overflow-hidden">
             <FilterPanel />
           </div>
 
           {/* Results */}
-          <div className="h-1/2 overflow-hidden">
+          <div className="h-64 overflow-hidden flex-shrink-0">
             <div className="p-4 border-b border-border">
               <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
                 Kombinasyonlar
