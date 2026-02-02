@@ -141,6 +141,10 @@ export const TIME_SLOTS: TimeSlot[] = [
     { id: 9, label: '9', startMinute: 16 * 60 + 30, endMinute: 17 * 60 + 20 }, // 16:30-17:20
     { id: 10, label: '10', startMinute: 17 * 60 + 30, endMinute: 18 * 60 + 20 }, // 17:30-18:20
     { id: 11, label: '11', startMinute: 18 * 60 + 30, endMinute: 19 * 60 + 20 }, // 18:30-19:20
+    { id: 12, label: '12', startMinute: 19 * 60 + 30, endMinute: 20 * 60 + 20 }, // 19:30-20:20
+    { id: 13, label: '13', startMinute: 20 * 60 + 30, endMinute: 21 * 60 + 20 }, // 20:30-21:20
+    { id: 14, label: '14', startMinute: 21 * 60 + 30, endMinute: 22 * 60 + 20 }, // 21:30-22:20
+    { id: 15, label: '15', startMinute: 22 * 60 + 30, endMinute: 23 * 60 + 20 }, // 22:30-23:20
 ];
 
 // Dakikayı saat formatına çevir
