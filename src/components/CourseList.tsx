@@ -576,7 +576,7 @@ export function CourseList() {
                                                                 </div>
                                                             </div>
                                                             <div className="mt-2">
-                                                                <label className="text-xs text-text-secondary block mb-1">Derslik</label>
+                                                                <label className="text-xs text-text-secondary block mb-1">Derslik <span className="opacity-60">(opsiyonel)</span></label>
                                                                 <Input
                                                                     placeholder="D201"
                                                                     value={meetingForm.location}
