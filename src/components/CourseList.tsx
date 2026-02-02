@@ -124,28 +124,37 @@ export function CourseList() {
                 {isAddingCourse && (
                     <div className="mb-4 p-3 bg-bg-secondary rounded-lg border border-border">
                         <h3 className="text-sm font-medium mb-3">Yeni Ders</h3>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs text-text-secondary block mb-1">Ders Kodu</label>
+                                    <Input
+                                        placeholder="CSE101"
+                                        value={courseForm.code}
+                                        onChange={(e) => setCourseForm({ ...courseForm, code: e.target.value })}
+                                        autoFocus
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-text-secondary block mb-1">Kredi</label>
+                                    <Input
+                                        placeholder="3"
+                                        type="number"
+                                        min={1}
+                                        max={10}
+                                        value={courseForm.credits}
+                                        onChange={(e) => setCourseForm({ ...courseForm, credits: parseInt(e.target.value) || 3 })}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs text-text-secondary block mb-1">Ders Adı</label>
                                 <Input
-                                    placeholder="Ders Kodu"
-                                    value={courseForm.code}
-                                    onChange={(e) => setCourseForm({ ...courseForm, code: e.target.value })}
-                                    autoFocus
-                                />
-                                <Input
-                                    placeholder="Kredi"
-                                    type="number"
-                                    min={1}
-                                    max={10}
-                                    value={courseForm.credits}
-                                    onChange={(e) => setCourseForm({ ...courseForm, credits: parseInt(e.target.value) || 3 })}
+                                    placeholder="Programlamaya Giriş"
+                                    value={courseForm.name}
+                                    onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
                                 />
                             </div>
-                            <Input
-                                placeholder="Ders Adı"
-                                value={courseForm.name}
-                                onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
-                            />
                             <div className="flex items-center gap-4">
                                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                                     <input
