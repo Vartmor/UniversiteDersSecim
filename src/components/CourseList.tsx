@@ -61,19 +61,22 @@ export function CourseList() {
             });
 
             // Auto-create sections based on sectionCount
-            // Note: We need to get the course ID from the store after it's added
+            // Use getState to get the fresh state after course is added
+            const sectionCount = courseForm.sectionCount;
+            const courseCode = courseForm.code.trim();
             setTimeout(() => {
-                const term = terms.find(t => t.id === activeTermId);
-                const newCourse = term?.courses.find(c => c.code === courseForm.code.trim());
+                const state = useStore.getState();
+                const term = state.terms.find(t => t.id === activeTermId);
+                const newCourse = term?.courses.find(c => c.code === courseCode);
                 if (newCourse) {
-                    for (let i = 1; i <= courseForm.sectionCount; i++) {
-                        addSection(newCourse.id, {
+                    for (let i = 1; i <= sectionCount; i++) {
+                        state.addSection(newCourse.id, {
                             courseId: newCourse.id,
                             name: `${i}. Şube`,
                         });
                     }
                 }
-            }, 0);
+            }, 10);
 
             setCourseForm({ code: '', name: '', credits: 3, required: true, isOnline: false, sectionCount: 1 });
             setIsAddingCourse(false);
