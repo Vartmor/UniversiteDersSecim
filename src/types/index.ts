@@ -119,3 +119,32 @@ export const DAY_SHORT_NAMES: Record<DayOfWeek, string> = {
     Sat: 'Cmt',
     Sun: 'Paz',
 };
+
+// Standart üniversite ders saatleri (50 dk ders + 10 dk ara)
+export interface TimeSlot {
+    id: number;
+    label: string;
+    startMinute: number;
+    endMinute: number;
+}
+
+export const TIME_SLOTS: TimeSlot[] = [
+    { id: 1, label: '1', startMinute: 8 * 60 + 30, endMinute: 9 * 60 + 20 },   // 08:30-09:20
+    { id: 2, label: '2', startMinute: 9 * 60 + 30, endMinute: 10 * 60 + 20 },  // 09:30-10:20
+    { id: 3, label: '3', startMinute: 10 * 60 + 30, endMinute: 11 * 60 + 20 }, // 10:30-11:20
+    { id: 4, label: '4', startMinute: 11 * 60 + 30, endMinute: 12 * 60 + 20 }, // 11:30-12:20
+    { id: 5, label: '5', startMinute: 12 * 60 + 30, endMinute: 13 * 60 + 20 }, // 12:30-13:20
+    { id: 6, label: '6', startMinute: 13 * 60 + 30, endMinute: 14 * 60 + 20 }, // 13:30-14:20
+    { id: 7, label: '7', startMinute: 14 * 60 + 30, endMinute: 15 * 60 + 20 }, // 14:30-15:20
+    { id: 8, label: '8', startMinute: 15 * 60 + 30, endMinute: 16 * 60 + 20 }, // 15:30-16:20
+    { id: 9, label: '9', startMinute: 16 * 60 + 30, endMinute: 17 * 60 + 20 }, // 16:30-17:20
+    { id: 10, label: '10', startMinute: 17 * 60 + 30, endMinute: 18 * 60 + 20 }, // 17:30-18:20
+    { id: 11, label: '11', startMinute: 18 * 60 + 30, endMinute: 19 * 60 + 20 }, // 18:30-19:20
+];
+
+// Dakikayı saat formatına çevir
+export function formatMinutesToTime(minutes: number): string {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+}
