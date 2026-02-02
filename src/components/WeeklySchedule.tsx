@@ -414,6 +414,29 @@ export function WeeklySchedule() {
                                                         onDragEnd={() => {
                                                             setDraggedMeeting(null);
                                                         }}
+                                                        onDragOver={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            e.currentTarget.classList.add('ring-2', 'ring-green-500');
+                                                        }}
+                                                        onDragLeave={(e) => {
+                                                            e.currentTarget.classList.remove('ring-2', 'ring-green-500');
+                                                        }}
+                                                        onDrop={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            e.currentTarget.classList.remove('ring-2', 'ring-green-500');
+                                                            if (draggedMeeting && draggedMeeting.meeting.id !== meeting.id) {
+                                                                // Move dragged meeting to this slot (same start time as this meeting)
+                                                                const duration = draggedMeeting.meeting.endMinute - draggedMeeting.meeting.startMinute;
+                                                                updateMeeting(draggedMeeting.section.id, draggedMeeting.meeting.id, {
+                                                                    day: meeting.day,
+                                                                    startMinute: meeting.startMinute,
+                                                                    endMinute: meeting.startMinute + duration
+                                                                });
+                                                                setDraggedMeeting(null);
+                                                            }
+                                                        }}
                                                         className={`group absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm z-20 ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
                                                         style={{
                                                             ...getMeetingStyle(meeting),
