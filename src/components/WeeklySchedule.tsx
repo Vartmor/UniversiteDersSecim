@@ -82,6 +82,43 @@ export function WeeklySchedule() {
         return allMeetings.filter((m) => m.meeting.day === day);
     };
 
+    // Check if two meetings overlap in time
+    const doMeetingsOverlap = (m1: Meeting, m2: Meeting): boolean => {
+        return m1.startMinute < m2.endMinute && m2.startMinute < m1.endMinute;
+    };
+
+    // Calculate layout for overlapping meetings (width and left offset)
+    const getMeetingLayout = (meeting: Meeting, dayMeetings: { meeting: Meeting; course: Course; section: Section }[]): { width: string; left: string } => {
+        // Find all meetings that overlap with this one
+        const overlappingGroup: Meeting[] = [meeting];
+
+        for (const m of dayMeetings) {
+            if (m.meeting.id !== meeting.id && doMeetingsOverlap(meeting, m.meeting)) {
+                overlappingGroup.push(m.meeting);
+            }
+        }
+
+        if (overlappingGroup.length === 1) {
+            return { width: 'calc(100% - 4px)', left: '2px' };
+        }
+
+        // Sort by start time, then by id for consistent ordering
+        overlappingGroup.sort((a, b) => {
+            if (a.startMinute !== b.startMinute) return a.startMinute - b.startMinute;
+            return a.id.localeCompare(b.id);
+        });
+
+        const index = overlappingGroup.findIndex(m => m.id === meeting.id);
+        const count = overlappingGroup.length;
+        const widthPercent = 100 / count;
+        const leftPercent = index * widthPercent;
+
+        return {
+            width: `calc(${widthPercent}% - 4px)`,
+            left: `calc(${leftPercent}% + 2px)`
+        };
+    };
+
     // Find which slots a meeting spans
     const getMeetingSlots = (meeting: Meeting): { startSlot: number; slotCount: number } => {
         let startSlot = -1;
@@ -314,48 +351,56 @@ export function WeeklySchedule() {
                                         ))}
 
                                         {/* Meeting blocks */}
-                                        {getMeetingsForDay(day).map(({ meeting, course, section }) => (
-                                            <div
-                                                key={meeting.id}
-                                                draggable
-                                                onDragStart={(e) => {
-                                                    setDraggedMeeting({ meeting, section });
-                                                    e.dataTransfer.effectAllowed = 'move';
-                                                }}
-                                                onDragEnd={() => {
-                                                    setDraggedMeeting(null);
-                                                }}
-                                                className={`absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
-                                                style={{
-                                                    ...getMeetingStyle(meeting),
-                                                    backgroundColor: course.color,
-                                                    borderLeft: `3px solid ${course.color === '#F3F4F6' ? '#9CA3AF' : course.color}`,
-                                                }}
-                                                title="Sürükleyerek taşı"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                    setSelectedMeeting({
-                                                        meeting,
-                                                        course,
-                                                        section,
-                                                        position: { x: rect.right + 10, y: rect.top }
-                                                    });
-                                                }}
-                                            >
-                                                <div className="text-xs font-semibold text-text-primary truncate">
-                                                    {selectedCourseFromStore ? section.name : course.code}
-                                                </div>
-                                                <div className="text-[10px] text-text-secondary truncate">
-                                                    {selectedCourseFromStore ? `${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}` : section.name}
-                                                </div>
-                                                {meeting.location && (
-                                                    <div className="text-[10px] text-text-secondary truncate">
-                                                        {meeting.location}
+                                        {(() => {
+                                            const dayMeetings = getMeetingsForDay(day);
+                                            return dayMeetings.map(({ meeting, course, section }) => {
+                                                const layout = getMeetingLayout(meeting, dayMeetings);
+                                                return (
+                                                    <div
+                                                        key={meeting.id}
+                                                        draggable
+                                                        onDragStart={(e) => {
+                                                            setDraggedMeeting({ meeting, section });
+                                                            e.dataTransfer.effectAllowed = 'move';
+                                                        }}
+                                                        onDragEnd={() => {
+                                                            setDraggedMeeting(null);
+                                                        }}
+                                                        className={`absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
+                                                        style={{
+                                                            ...getMeetingStyle(meeting),
+                                                            width: layout.width,
+                                                            left: layout.left,
+                                                            backgroundColor: course.color,
+                                                            borderLeft: `3px solid ${course.color === '#F3F4F6' ? '#9CA3AF' : course.color}`,
+                                                        }}
+                                                        title="Sürükleyerek taşı"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const rect = e.currentTarget.getBoundingClientRect();
+                                                            setSelectedMeeting({
+                                                                meeting,
+                                                                course,
+                                                                section,
+                                                                position: { x: rect.right + 10, y: rect.top }
+                                                            });
+                                                        }}
+                                                    >
+                                                        <div className="text-xs font-semibold text-text-primary truncate">
+                                                            {selectedCourseFromStore ? section.name : course.code}
+                                                        </div>
+                                                        <div className="text-[10px] text-text-secondary truncate">
+                                                            {selectedCourseFromStore ? `${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}` : section.name}
+                                                        </div>
+                                                        {meeting.location && (
+                                                            <div className="text-[10px] text-text-secondary truncate">
+                                                                {meeting.location}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        ))}
+                                                );
+                                            });
+                                        })()}
                                     </div>
                                 </div>
                             ))}
