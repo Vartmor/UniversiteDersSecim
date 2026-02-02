@@ -62,8 +62,8 @@ function ScheduleCard({ schedule, index, isSelected, onSelect, onTogglePin }: Sc
         <button
             onClick={onSelect}
             className={`w-full text-left p-2 rounded-md border transition-colors ${isSelected
-                    ? 'bg-blue-50 border-accent'
-                    : 'bg-white border-border hover:border-gray-300'
+                ? 'bg-blue-50 border-accent'
+                : 'bg-bg-primary border-border hover:border-gray-400'
                 }`}
         >
             <div className="flex items-center justify-between">
@@ -82,8 +82,8 @@ function ScheduleCard({ schedule, index, isSelected, onSelect, onTogglePin }: Sc
                         onTogglePin();
                     }}
                     className={`text-sm px-2 py-1 rounded ${schedule.pinned
-                            ? 'text-yellow-600 hover:bg-yellow-50'
-                            : 'text-text-secondary hover:bg-gray-100'
+                        ? 'text-yellow-600 hover:bg-yellow-50'
+                        : 'text-text-secondary hover:bg-gray-100'
                         }`}
                     title={schedule.pinned ? 'Favoriden çıkar' : 'Favorilere ekle'}
                 >

@@ -7,13 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Ana Renkler - Düz (Solid), Gradient Yok
-        'bg-primary': '#FFFFFF',
-        'bg-secondary': '#F5F5F5',
-        'text-primary': '#1A1A1A',
-        'text-secondary': '#666666',
-        'accent': '#2563EB',
-        'border': '#E5E5E5',
+        // CSS Değişkenlerinden Okunan Renkler (Dark Mode Destekli)
+        'bg-primary': 'var(--color-bg-primary)',
+        'bg-secondary': 'var(--color-bg-secondary)',
+        'text-primary': 'var(--color-text-primary)',
+        'text-secondary': 'var(--color-text-secondary)',
+        'accent': 'var(--color-accent)',
+        'border': 'var(--color-border)',
         // Ders Renkleri - Soft, Profesyonel Tonlar
         'course-1': '#DBEAFE',
         'course-2': '#FEE2E2',

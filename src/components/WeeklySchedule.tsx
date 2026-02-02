@@ -172,7 +172,7 @@ export function WeeklySchedule() {
     const totalMins = totalWeeklyMinutes % 60;
 
     return (
-        <div className="h-full flex flex-col bg-white">
+        <div className="h-full flex flex-col bg-bg-primary">
             {/* Header */}
             <div className="p-4 border-b border-border">
                 <div className="flex items-center justify-between">
@@ -526,7 +526,7 @@ export function WeeklySchedule() {
                     onClick={() => setSelectedMeeting(null)}
                 >
                     <div
-                        className="absolute bg-white rounded-lg shadow-xl border border-border p-4 min-w-[280px] max-w-[320px]"
+                        className="absolute bg-bg-primary rounded-lg shadow-xl border border-border p-4 min-w-[280px] max-w-[320px]"
                         style={{
                             left: Math.min(selectedMeeting.position.x, window.innerWidth - 340),
                             top: Math.min(selectedMeeting.position.y, window.innerHeight - 300),
@@ -615,7 +615,7 @@ export function WeeklySchedule() {
                     onClick={() => setQuickAddInfo(null)}
                 >
                     <div
-                        className="absolute bg-white rounded-lg shadow-xl border border-border p-3 w-[180px]"
+                        className="absolute bg-bg-primary rounded-lg shadow-xl border border-border p-3 w-[180px]"
                         style={{
                             left: Math.min(quickAddInfo.position.x - 100, window.innerWidth - 220),
                             top: Math.min(quickAddInfo.position.y + 10, window.innerHeight - 200),
@@ -671,7 +671,7 @@ export function WeeklySchedule() {
                     onClick={() => setDeleteConfirm(null)}
                 >
                     <div
-                        className="bg-white rounded-lg shadow-xl border border-border p-5 w-[320px]"
+                        className="bg-bg-primary rounded-lg shadow-xl border border-border p-5 w-[320px]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center gap-3 mb-4">

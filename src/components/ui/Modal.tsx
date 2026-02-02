@@ -53,7 +53,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             {/* Modal */}
             <div
                 ref={modalRef}
-                className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} mx-4 max-h-[85vh] overflow-hidden flex flex-col`}
+                className={`relative bg-bg-primary rounded-lg shadow-xl w-full ${sizeClasses[size]} mx-4 max-h-[85vh] overflow-hidden flex flex-col`}
             >
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-border flex items-center justify-between">

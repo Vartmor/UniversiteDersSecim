@@ -28,6 +28,10 @@ function App() {
   const [formYear, setFormYear] = useState(YEAR_OPTIONS[3].value);
   const [formSemester, setFormSemester] = useState('Güz');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved === 'true';
+  });
   const settingsRef = useRef<HTMLDivElement>(null);
 
   const activeTermId = useStore((state) => state.activeTermId);
@@ -44,6 +48,16 @@ function App() {
   const activeTerm = terms.find((t) => t.id === activeTermId);
   const courses = activeTerm?.courses || [];
   const hasCoursesWithSections = courses.some(c => c.sections.length > 0);
+
+  // Apply dark mode to document
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('darkMode', isDarkMode.toString());
+  }, [isDarkMode]);
 
   // Close settings dropdown when clicking outside
   useEffect(() => {
@@ -88,7 +102,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-bg-primary">
       {/* Header */}
-      <header className="h-14 px-4 border-b border-border flex items-center justify-between bg-white flex-shrink-0">
+      <header className="h-14 px-4 border-b border-border flex items-center justify-between bg-bg-primary flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-semibold text-text-primary">
             Ders Seçim
@@ -194,7 +208,7 @@ function App() {
             </button>
 
             {isSettingsOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-border py-2 z-50">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-bg-primary rounded-lg shadow-xl border border-border py-2 z-50">
                 <div className="px-4 py-2 border-b border-border">
                   <h3 className="text-sm font-semibold text-text-primary">Kısayollar</h3>
                 </div>
@@ -213,7 +227,18 @@ function App() {
                   </div>
                 </div>
                 <div className="border-t border-border mt-2 pt-2 px-4">
-                  <span className="text-[10px] text-gray-400">v0.1.0 - MVP</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-text-secondary">Karanlık Mod</span>
+                    <button
+                      onClick={() => setIsDarkMode(!isDarkMode)}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${isDarkMode ? 'bg-accent' : 'bg-gray-300'}`}
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform shadow ${isDarkMode ? 'translate-x-5' : ''}`}
+                      />
+                    </button>
+                  </div>
+                  <span className="text-[10px] text-text-secondary">v0.1.0 - MVP</span>
                 </div>
               </div>
             )}
@@ -234,7 +259,7 @@ function App() {
         </main>
 
         {/* Right Panel - Filters & Results */}
-        <aside className="w-72 border-l border-border bg-white flex-shrink-0 flex flex-col">
+        <aside className="w-72 border-l border-border bg-bg-primary flex-shrink-0 flex flex-col">
           {/* Filters */}
           <div className="flex-1 border-b border-border overflow-hidden">
             <FilterPanel />

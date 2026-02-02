@@ -298,7 +298,7 @@ export function CourseList() {
                                 key={course.id}
                                 className={`rounded-lg border transition-colors ${selectedCourseId === course.id
                                     ? 'border-accent bg-blue-50'
-                                    : 'border-border bg-white hover:border-gray-300'
+                                    : 'border-border bg-bg-primary hover:border-gray-400'
                                     }`}
                             >
                                 {editingCourseId === course.id ? (
@@ -524,7 +524,7 @@ export function CourseList() {
 
                                                     {/* Add Meeting */}
                                                     {isAddingMeeting === section.id ? (
-                                                        <div className="mt-2 p-2 bg-white rounded border border-border">
+                                                        <div className="mt-2 p-2 bg-bg-primary rounded border border-border">
                                                             <div className="grid grid-cols-2 gap-2">
                                                                 <div>
                                                                     <label className="text-xs text-text-secondary block mb-1">Gün</label>
