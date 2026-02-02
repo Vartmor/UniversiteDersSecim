@@ -1,19 +1,31 @@
+import { useState } from 'react';
 import { useStore } from '../store';
 import { DayOfWeek, DAY_SHORT_NAMES, Meeting, Course, Section, TIME_SLOTS, formatMinutesToTime } from '../types';
 
 const DAYS: DayOfWeek[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const SLOT_HEIGHT = 52; // pixels per time slot
 
+interface SelectedMeetingInfo {
+    meeting: Meeting;
+    course: Course;
+    section: Section;
+    position: { x: number; y: number };
+}
+
 export function WeeklySchedule() {
+    const [selectedMeeting, setSelectedMeeting] = useState<SelectedMeetingInfo | null>(null);
+
     const terms = useStore((state) => state.terms);
     const activeTermId = useStore((state) => state.activeTermId);
     const selectedCourseId = useStore((state) => state.selectedCourseId);
     const schedules = useStore((state) => state.schedules);
     const selectedScheduleId = useStore((state) => state.selectedScheduleId);
+    const removeMeeting = useStore((state) => state.removeMeeting);
+    const setSelectedCourse = useStore((state) => state.setSelectedCourse);
 
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
-    const selectedCourse = courses.find((c) => c.id === selectedCourseId);
+    const selectedCourseFromStore = courses.find((c) => c.id === selectedCourseId);
 
     const selectedSchedule = schedules.find((s) => s.id === selectedScheduleId);
 
@@ -22,10 +34,10 @@ export function WeeklySchedule() {
         const meetings: { meeting: Meeting; course: Course; section: Section }[] = [];
 
         // If a course is selected, show only that course's sections
-        if (selectedCourse) {
-            for (const section of selectedCourse.sections) {
+        if (selectedCourseFromStore) {
+            for (const section of selectedCourseFromStore.sections) {
                 for (const meeting of section.meetings) {
-                    meetings.push({ meeting, course: selectedCourse, section });
+                    meetings.push({ meeting, course: selectedCourseFromStore, section });
                 }
             }
         } else if (selectedSchedule) {
@@ -109,11 +121,11 @@ export function WeeklySchedule() {
             {/* Header */}
             <div className="p-4 border-b border-border">
                 <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
-                    {selectedCourse ? `${selectedCourse.code} - Haftalık Program` : 'Haftalık Program'}
+                    {selectedCourseFromStore ? `${selectedCourseFromStore.code} - Haftalık Program` : 'Haftalık Program'}
                 </h2>
-                {selectedCourse ? (
+                {selectedCourseFromStore ? (
                     <p className="text-xs text-text-secondary mt-0.5">
-                        {selectedCourse.name} • {selectedCourse.sections.length} şube
+                        {selectedCourseFromStore.name} • {selectedCourseFromStore.sections.length} şube
                     </p>
                 ) : selectedSchedule ? (
                     <p className="text-xs text-text-secondary mt-0.5">
@@ -137,7 +149,7 @@ export function WeeklySchedule() {
                             Sol panelden ders ekleyin.
                         </p>
                     </div>
-                ) : !selectedCourse && !selectedSchedule ? (
+                ) : !selectedCourseFromStore && !selectedSchedule ? (
                     <div className="h-full flex items-center justify-center">
                         <div className="text-center">
                             <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,19 +213,28 @@ export function WeeklySchedule() {
                                         {getMeetingsForDay(day).map(({ meeting, course, section }) => (
                                             <div
                                                 key={meeting.id}
-                                                className="absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
+                                                className="absolute left-0.5 right-0.5 rounded px-1.5 py-1 overflow-hidden cursor-pointer hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm"
                                                 style={{
                                                     ...getMeetingStyle(meeting),
                                                     backgroundColor: course.color,
                                                     borderLeft: `3px solid ${course.color === '#F3F4F6' ? '#9CA3AF' : course.color}`,
                                                 }}
-                                                title={`${course.code} - ${section.name}\n${formatMinutesToTime(meeting.startMinute)} - ${formatMinutesToTime(meeting.endMinute)}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                    setSelectedMeeting({
+                                                        meeting,
+                                                        course,
+                                                        section,
+                                                        position: { x: rect.right + 10, y: rect.top }
+                                                    });
+                                                }}
                                             >
                                                 <div className="text-xs font-semibold text-text-primary truncate">
-                                                    {selectedCourse ? section.name : course.code}
+                                                    {selectedCourseFromStore ? section.name : course.code}
                                                 </div>
                                                 <div className="text-[10px] text-text-secondary truncate">
-                                                    {selectedCourse ? `${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}` : section.name}
+                                                    {selectedCourseFromStore ? `${formatMinutesToTime(meeting.startMinute)}-${formatMinutesToTime(meeting.endMinute)}` : section.name}
                                                 </div>
                                                 {meeting.location && (
                                                     <div className="text-[10px] text-text-secondary truncate">
@@ -229,6 +250,93 @@ export function WeeklySchedule() {
                     </div>
                 )}
             </div>
-        </div >
+
+            {/* Meeting Detail Popup */}
+            {selectedMeeting && (
+                <div
+                    className="fixed inset-0 z-50"
+                    onClick={() => setSelectedMeeting(null)}
+                >
+                    <div
+                        className="absolute bg-white rounded-lg shadow-xl border border-border p-4 min-w-[280px] max-w-[320px]"
+                        style={{
+                            left: Math.min(selectedMeeting.position.x, window.innerWidth - 340),
+                            top: Math.min(selectedMeeting.position.y, window.innerHeight - 300),
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 className="font-semibold text-text-primary">{selectedMeeting.course.code}</h3>
+                                <p className="text-sm text-text-secondary">{selectedMeeting.course.name}</p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedMeeting(null)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Details */}
+                        <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                                <span className="text-text-secondary">Şube:</span>
+                                <span className="font-medium">{selectedMeeting.section.name}</span>
+                            </div>
+                            {selectedMeeting.section.instructor && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-text-secondary">Öğretim Görevlisi:</span>
+                                    <span className="font-medium">{selectedMeeting.section.instructor}</span>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <span className="text-text-secondary">Saat:</span>
+                                <span className="font-medium">
+                                    {formatMinutesToTime(selectedMeeting.meeting.startMinute)} - {formatMinutesToTime(selectedMeeting.meeting.endMinute)}
+                                </span>
+                            </div>
+                            {selectedMeeting.meeting.location && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-text-secondary">Derslik:</span>
+                                    <span className="font-medium">{selectedMeeting.meeting.location}</span>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <span className="text-text-secondary">Tür:</span>
+                                <span className="font-medium">{selectedMeeting.meeting.type}</span>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 mt-4 pt-3 border-t border-border">
+                            <button
+                                onClick={() => {
+                                    setSelectedCourse(selectedMeeting.course.id);
+                                    setSelectedMeeting(null);
+                                }}
+                                className="flex-1 px-3 py-1.5 text-sm bg-accent text-white rounded-md hover:bg-blue-600 transition-colors"
+                            >
+                                Dersi Seç
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (confirm('Bu saati silmek istediğinizden emin misiniz?')) {
+                                        removeMeeting(selectedMeeting.section.id, selectedMeeting.meeting.id);
+                                        setSelectedMeeting(null);
+                                    }
+                                }}
+                                className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors"
+                            >
+                                Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
