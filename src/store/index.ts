@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Term, Course, Section, Schedule, UserFilters, COURSE_COLORS } from '../types';
+import { Term, Course, Section, Schedule, UserFilters, ScoreWeights, DEFAULT_SCORE_WEIGHTS, COURSE_COLORS } from '../types';
 
 // Uygulama durumu
 interface AppState {
@@ -15,52 +15,46 @@ interface AppState {
     // Oluşturulan programlar
     schedules: Schedule[];
 
-    // Filtreler
+    // Filtreler ve Skor Ağırlıkları
     filters: UserFilters;
+    scoreWeights: ScoreWeights;
 
     // UI durumu
     isGenerating: boolean;
 
     // Aksiyon fonksiyonları
-    // Dönem işlemleri
     addTerm: (name: string) => void;
     removeTerm: (id: string) => void;
     setActiveTerm: (id: string | null) => void;
 
-    // Ders işlemleri
     addCourse: (course: Omit<Course, 'id' | 'color' | 'sections'>) => void;
     updateCourse: (id: string, updates: Partial<Course>) => void;
     removeCourse: (id: string) => void;
     setSelectedCourse: (id: string | null) => void;
 
-    // Şube işlemleri
     addSection: (courseId: string, section: Omit<Section, 'id' | 'meetings'>) => void;
     updateSection: (sectionId: string, updates: Partial<Section>) => void;
     removeSection: (courseId: string, sectionId: string) => void;
 
-    // Meeting işlemleri
     addMeeting: (sectionId: string, meeting: Omit<Section['meetings'][0], 'id' | 'sectionId'>) => void;
     removeMeeting: (sectionId: string, meetingId: string) => void;
 
-    // Filtre işlemleri
     updateFilters: (filters: Partial<UserFilters>) => void;
     resetFilters: () => void;
+    updateScoreWeights: (weights: Partial<ScoreWeights>) => void;
+    resetScoreWeights: () => void;
 
-    // Program işlemleri
     setSchedules: (schedules: Schedule[]) => void;
     togglePinSchedule: (id: string) => void;
     setSelectedSchedule: (id: string | null) => void;
 
-    // Yardımcı fonksiyonlar
     getActiveTerm: () => Term | undefined;
     getCourseById: (id: string) => Course | undefined;
     getSectionById: (id: string) => Section | undefined;
 }
 
-// ID oluşturucu
 const generateId = () => crypto.randomUUID();
 
-// Varsayılan filtreler
 const defaultFilters: UserFilters = {
     earliestStart: null,
     latestEnd: null,
@@ -70,20 +64,18 @@ const defaultFilters: UserFilters = {
     minFreeDays: 0,
 };
 
-// Zustand store
 export const useStore = create<AppState>()(
     persist(
         (set, get) => ({
-            // Başlangıç durumu
             terms: [],
             activeTermId: null,
             selectedCourseId: null,
             selectedScheduleId: null,
             schedules: [],
             filters: defaultFilters,
+            scoreWeights: DEFAULT_SCORE_WEIGHTS,
             isGenerating: false,
 
-            // Dönem işlemleri
             addTerm: (name) => {
                 const newTerm: Term = {
                     id: generateId(),
@@ -107,7 +99,6 @@ export const useStore = create<AppState>()(
                 set({ activeTermId: id, selectedCourseId: null, schedules: [] });
             },
 
-            // Ders işlemleri
             addCourse: (courseData) => {
                 const state = get();
                 if (!state.activeTermId) return;
@@ -156,7 +147,6 @@ export const useStore = create<AppState>()(
                 set({ selectedCourseId: id });
             },
 
-            // Şube işlemleri
             addSection: (courseId, sectionData) => {
                 const newSection: Section = {
                     ...sectionData,
@@ -204,7 +194,6 @@ export const useStore = create<AppState>()(
                 }));
             },
 
-            // Meeting işlemleri
             addMeeting: (sectionId, meetingData) => {
                 const newMeeting = {
                     ...meetingData,
@@ -243,7 +232,6 @@ export const useStore = create<AppState>()(
                 }));
             },
 
-            // Filtre işlemleri
             updateFilters: (filterUpdates) => {
                 set((state) => ({
                     filters: { ...state.filters, ...filterUpdates },
@@ -254,7 +242,16 @@ export const useStore = create<AppState>()(
                 set({ filters: defaultFilters });
             },
 
-            // Program işlemleri
+            updateScoreWeights: (weightUpdates) => {
+                set((state) => ({
+                    scoreWeights: { ...state.scoreWeights, ...weightUpdates },
+                }));
+            },
+
+            resetScoreWeights: () => {
+                set({ scoreWeights: DEFAULT_SCORE_WEIGHTS });
+            },
+
             setSchedules: (schedules) => {
                 set({ schedules, selectedScheduleId: schedules.length > 0 ? schedules[0].id : null });
             },
@@ -271,7 +268,6 @@ export const useStore = create<AppState>()(
                 set({ selectedScheduleId: id });
             },
 
-            // Yardımcı fonksiyonlar
             getActiveTerm: () => {
                 const state = get();
                 return state.terms.find((t) => t.id === state.activeTermId);
@@ -298,7 +294,7 @@ export const useStore = create<AppState>()(
             },
         }),
         {
-            name: 'obs-scheduler-storage',
+            name: 'universite-ders-secim-storage',
         }
     )
 );

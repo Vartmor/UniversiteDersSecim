@@ -1,4 +1,4 @@
-import { Course, Section, Meeting, Schedule, ScheduleStats, DayOfWeek, UserFilters } from '../types';
+import { Course, Section, Meeting, Schedule, ScheduleStats, DayOfWeek, UserFilters, ScoreWeights, DEFAULT_SCORE_WEIGHTS } from '../types';
 import { hasOverlap, generateId } from './utils';
 
 // Meeting'lerin çakışıp çakışmadığını kontrol et
@@ -28,19 +28,15 @@ function sectionPassesEarlyFilters(
     filters: UserFilters
 ): boolean {
     for (const meeting of section.meetings) {
-        // Erken başlangıç filtresi
         if (filters.earliestStart !== null && meeting.startMinute < filters.earliestStart) {
             return false;
         }
-        // Geç bitiş filtresi
         if (filters.latestEnd !== null && meeting.endMinute > filters.latestEnd) {
             return false;
         }
-        // Boş gün filtresi
         if (filters.freeDays.includes(meeting.day)) {
             return false;
         }
-        // Öğle arası filtresi (12:00-13:00)
         if (filters.lunchBreak) {
             const lunchStart = 12 * 60;
             const lunchEnd = 13 * 60;
@@ -56,9 +52,9 @@ function sectionPassesEarlyFilters(
 export function generateCombinations(
     courses: Course[],
     filters: UserFilters,
+    weights: ScoreWeights = DEFAULT_SCORE_WEIGHTS,
     maxResults: number = 1000
 ): Schedule[] {
-    // En az şubesi olan dersten başla (branching azaltma)
     const sortedCourses = [...courses].sort(
         (a, b) => a.sections.length - b.sections.length
     );
@@ -68,14 +64,11 @@ export function generateCombinations(
     const currentMeetings: Meeting[] = [];
 
     function backtrack(courseIndex: number) {
-        // Sonuç limitine ulaşıldı mı?
         if (results.length >= maxResults) return;
 
-        // Tüm dersler işlendi - geçerli kombinasyon bulundu
         if (courseIndex >= sortedCourses.length) {
-            const schedule = createScheduleFromSelection(currentSelection);
+            const schedule = createScheduleFromSelection(currentSelection, weights);
 
-            // Son filtreleri uygula
             if (schedulePassesPostFilters(schedule, filters)) {
                 results.push(schedule);
             }
@@ -84,25 +77,20 @@ export function generateCombinations(
 
         const course = sortedCourses[courseIndex];
 
-        // Bu dersin her şubesini dene
         for (const section of course.sections) {
-            // Erken filtreler
             if (!sectionPassesEarlyFilters(section, filters)) {
                 continue;
             }
 
-            // Çakışma kontrolü
             if (sectionOverlapsWithSelection(section, currentMeetings)) {
                 continue;
             }
 
-            // Bu şubeyi seç ve devam et
             currentSelection.push(section);
             currentMeetings.push(...section.meetings);
 
             backtrack(courseIndex + 1);
 
-            // Geri al (backtrack)
             currentSelection.pop();
             currentMeetings.length -= section.meetings.length;
         }
@@ -110,18 +98,17 @@ export function generateCombinations(
 
     backtrack(0);
 
-    // Skora göre sırala
     results.sort((a, b) => b.score - a.score);
 
     return results;
 }
 
 // Seçilen şubelerden bir Schedule oluştur
-function createScheduleFromSelection(sections: Section[]): Schedule {
+function createScheduleFromSelection(sections: Section[], weights: ScoreWeights): Schedule {
     const sectionIds = sections.map(s => s.id);
     const allMeetings = sections.flatMap(s => s.meetings);
     const stats = calculateScheduleStats(allMeetings);
-    const score = calculateScore(stats);
+    const score = calculateScore(stats, weights);
 
     return {
         id: generateId(),
@@ -153,7 +140,6 @@ function calculateScheduleStats(meetings: Meeting[]): ScheduleStats {
         dayMeetings[meeting.day].push(meeting);
     }
 
-    // Her günün meeting'lerini sırala
     for (const day of days) {
         dayMeetings[day].sort((a, b) => a.startMinute - b.startMinute);
     }
@@ -172,17 +158,14 @@ function calculateScheduleStats(meetings: Meeting[]): ScheduleStats {
             continue;
         }
 
-        // En erken ve en geç
         const dayStart = dm[0].startMinute;
         const dayEnd = dm[dm.length - 1].endMinute;
 
         earliestStart = Math.min(earliestStart, dayStart);
         latestEnd = Math.max(latestEnd, dayEnd);
 
-        // Spread (günlük kampüste kalma süresi)
         totalSpread += dayEnd - dayStart;
 
-        // Gap hesaplama
         for (let i = 1; i < dm.length; i++) {
             const gap = dm[i].startMinute - dm[i - 1].endMinute;
             if (gap > 0) {
@@ -202,49 +185,59 @@ function calculateScheduleStats(meetings: Meeting[]): ScheduleStats {
     };
 }
 
-// Skor hesapla (yüksek = iyi)
-function calculateScore(stats: ScheduleStats): number {
-    const weights = {
-        freeDays: 100,        // Her boş gün için +100
-        lateStart: 2,         // Geç başlamak iyi (dakika başına +2)
-        gaps: -0.5,           // Boşluk kötü (dakika başına -0.5)
-        spread: -0.3,         // Uzun kampüs süresi kötü (dakika başına -0.3)
+// Skor hesapla - dinamik ağırlıklarla
+function calculateScore(stats: ScheduleStats, weights: ScoreWeights): number {
+    // Ağırlıkları 0-100 aralığından gerçek çarpanlara dönüştür
+    const normalizedWeights = {
+        freeDays: (weights.freeDays / 100) * 150,      // max 150 puan/gün
+        lateStart: (weights.lateStart / 100) * 3,      // max 3 puan/dakika
+        gaps: (weights.gaps / 100) * -1,               // max -1 puan/dakika
+        spread: (weights.spread / 100) * -0.5,         // max -0.5 puan/dakika
     };
 
     let score = 0;
 
     // Boş günler
-    score += stats.freeDays * weights.freeDays;
+    score += stats.freeDays * normalizedWeights.freeDays;
 
     // Geç başlangıç bonusu (8:00'dan sonra her dakika için)
-    const baseStart = 8 * 60; // 08:00
+    const baseStart = 8 * 60;
     if (stats.earliestStart > baseStart) {
-        score += (stats.earliestStart - baseStart) * weights.lateStart;
+        score += (stats.earliestStart - baseStart) * normalizedWeights.lateStart;
     }
 
     // Boşluk cezası
-    score += stats.totalGaps * weights.gaps;
+    score += stats.totalGaps * normalizedWeights.gaps;
 
     // Spread cezası
-    score += stats.totalSpread * weights.spread;
+    score += stats.totalSpread * normalizedWeights.spread;
 
     return Math.round(score);
 }
 
-// Son filtreler (kombinasyon tamamlandıktan sonra)
+// Son filtreler
 function schedulePassesPostFilters(
     schedule: Schedule,
     filters: UserFilters
 ): boolean {
-    // Minimum boş gün
     if (schedule.stats.freeDays < filters.minFreeDays) {
         return false;
     }
 
-    // Maksimum gap (herhangi bir günde)
     if (filters.maxGap !== null && schedule.stats.totalGaps > filters.maxGap) {
         return false;
     }
 
     return true;
+}
+
+// Mevcut programları yeniden skorla (ağırlıklar değiştiğinde)
+export function rescoreSchedules(
+    schedules: Schedule[],
+    weights: ScoreWeights
+): Schedule[] {
+    return schedules.map(schedule => ({
+        ...schedule,
+        score: calculateScore(schedule.stats, weights),
+    })).sort((a, b) => b.score - a.score);
 }
