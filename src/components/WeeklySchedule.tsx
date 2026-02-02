@@ -375,7 +375,7 @@ export function WeeklySchedule() {
                                                         onDragEnd={() => {
                                                             setDraggedMeeting(null);
                                                         }}
-                                                        className={`group absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
+                                                        className={`group absolute rounded px-1 py-0.5 overflow-hidden cursor-grab active:cursor-grabbing hover:opacity-90 hover:ring-2 hover:ring-accent transition-all shadow-sm z-20 ${draggedMeeting?.meeting.id === meeting.id ? 'opacity-50' : ''}`}
                                                         style={{
                                                             ...getMeetingStyle(meeting),
                                                             width: layout.width,
