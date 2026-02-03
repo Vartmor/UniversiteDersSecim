@@ -71,10 +71,7 @@ npm run tauri build
 - **Backend:** Tauri v2 (Rust)
 - **State:** Zustand (localStorage persistence)
 
-## Katkıda Bulunma
+## Yazar
 
-Pull request'lerinizi bekliyoruz!
+**Muhammed Köseoğlu**
 
-## Lisans
-
-MIT © [Muhammed Köseoğlu](https://github.com/Vartmor)
