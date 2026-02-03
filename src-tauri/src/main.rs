@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    obs_scheduler_lib::run()
+    ders_secim_lib::run()
 }
