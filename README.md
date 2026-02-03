@@ -30,9 +30,11 @@
 
 | Platform | Dosya |
 |----------|-------|
-| 🪟 Windows | `.msi` veya `.exe` |
+| 🪟 Windows | `.msi` (önerilen) |
 | 🍎 macOS | `.dmg` |
 | 🐧 Linux | `.deb` veya `.AppImage` |
+
+> ⚠️ **Windows kullanıcıları:** Antivirüs programı uyarı verebilir. Bu açık kaynak bir uygulama olup zararlı kod içermez. `.msi` yükleyiciyi tercih edin veya "Yine de çalıştır" seçeneğini kullanın.
 
 ### Kaynak Koddan Derleme
 
