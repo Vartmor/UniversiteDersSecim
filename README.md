@@ -7,9 +7,9 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blueviolet?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
 
 <!-- 
-📸 EKRAN GÖRÜNTÜLERİ - Aşağıdaki placeholder'ları gerçek ekran görüntüleri ile değiştirin
-![Ana Ekran](docs/screenshots/main.png)
+📸 EKRAN GÖRÜNTÜLERİ
 -->
+![Ana Ekran](docs/screenshots/main.png)
 
 ## ✨ Özellikler
 
