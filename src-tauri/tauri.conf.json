@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Ders Seçim",
+  "productName": "Üniversite Ders Seçim",
   "version": "0.1.0",
-  "identifier": "com.muhammed.ders-secim",
+  "identifier": "com.vartmor.universite-ders-secim",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Ders Seçim - Üniversite Program Planlayıcı",
+        "title": "Üniversite Ders Seçim",
         "width": 1400,
         "height": 900,
         "minWidth": 1000,

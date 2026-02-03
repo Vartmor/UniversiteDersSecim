@@ -1,22 +1,28 @@
-# Ders Seçim
+# Üniversite Ders Seçim
 
 > Üniversite öğrencileri için akıllı ders programı planlama uygulaması
 
-[![Release](https://img.shields.io/github/v/release/Vartmor/UniversiteDersSecim?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Vartmor/UniversiteDersSecim?style=flat-square&color=0ea5e9)](https://github.com/Vartmor/UniversiteDersSecim/releases)
+[![License](https://img.shields.io/github/license/Vartmor/UniversiteDersSecim?style=flat-square&color=22c55e)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blueviolet?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
 
-## Özellikler
+<!-- 
+📸 EKRAN GÖRÜNTÜLERİ - Aşağıdaki placeholder'ları gerçek ekran görüntüleri ile değiştirin
+![Ana Ekran](docs/screenshots/main.png)
+-->
+
+## ✨ Özellikler
 
 - **Ders Yönetimi:** Dönem, ders, şube ve saat bloklarını kolayca ekleyin
 - **Otomatik Kombinasyon:** Çakışmasız tüm program seçeneklerini otomatik oluşturur
 - **Akıllı Filtreleme:** Erken/geç saat, boş gün, öğle arası gibi filtrelerle daraltın
 - **Skor Sıralaması:** En iyi programları otomatik sıralama
 - **Export:** JSON, ICS (takvim), PNG formatlarında dışa aktarma
-- **Klavye Kısayolları:** Ctrl+N, Ctrl+G, Ctrl+E, Esc
+- **Klavye Kısayolları:** Hızlı erişim için Ctrl+N, Ctrl+G, Ctrl+E
 - **Offline Çalışma:** İnternet bağlantısı gerektirmez
 - **Gizlilik:** Hiçbir veri sunucuya gönderilmez
 
-## Kurulum
+## 📥 Kurulum
 
 ### Hazır İndirme (Önerilen)
 
@@ -24,9 +30,9 @@
 
 | Platform | Dosya |
 |----------|-------|
-| Windows | `.msi` veya `.exe` |
-| macOS | `.dmg` |
-| Linux | `.deb` veya `.AppImage` |
+| 🪟 Windows | `.msi` veya `.exe` |
+| 🍎 macOS | `.dmg` |
+| 🐧 Linux | `.deb` veya `.AppImage` |
 
 ### Kaynak Koddan Derleme
 
@@ -44,9 +50,9 @@ npm run tauri build
 **Gereksinimler:**
 - Node.js 18+
 - Rust (rustup ile kurulum)
-- Tauri CLI (`npm install -g @tauri-apps/cli`)
+- Tauri CLI
 
-## Kullanım
+## 🚀 Kullanım
 
 1. Sol üstten **dönem** oluşturun (örn: "2025-2026 Bahar")
 2. **+ Ders Ekle** butonuyla derslerinizi girin
@@ -56,7 +62,7 @@ npm run tauri build
 6. Beğendiğiniz programları **yıldız** ile işaretleyin
 7. **Dışa Aktar** ile JSON/ICS/PNG olarak kaydedin
 
-### Klavye Kısayolları
+### ⌨️ Klavye Kısayolları
 
 | Kısayol | İşlev |
 |---------|-------|
@@ -65,13 +71,16 @@ npm run tauri build
 | `Ctrl+E` | Dışa aktar |
 | `Esc` | Modal kapat |
 
-## Teknolojiler
+## 🛠️ Teknolojiler
 
 - **Frontend:** React 19 + TypeScript + Tailwind CSS
 - **Backend:** Tauri v2 (Rust)
-- **State:** Zustand (localStorage persistence)
+- **State:** Zustand
 
-## Yazar
+## 📄 Lisans
 
-**Muhammed Köseoğlu**
+Bu proje açık kaynaklıdır.
 
+## 👤 Yazar
+
+**Muhammed Köseoğlu** - [@Vartmor](https://github.com/Vartmor)
