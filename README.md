@@ -169,19 +169,10 @@ Bu uygulama aşağıdaki teknolojiler kullanılarak geliştirilmiştir:
 
 ---
 
-## Katkıda Bulunma
-
-Bu proje açık kaynak kodludur. Hata bildirimi, özellik önerisi veya kod katkısı için GitHub Issues ve Pull Request özelliklerini kullanabilirsiniz.
-
----
-
 ## Lisans
 
 Bu proje GNU General Public License v3.0 altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
 
 ---
 
-## Geliştirici
-
-**Muhammed Köseoğlu**  
-GitHub: [@Vartmor](https://github.com/Vartmor)
+[En Yukarı Dön](#üniversite-ders-seçim)
