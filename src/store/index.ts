@@ -45,6 +45,9 @@ interface AppState {
     getActiveTerm: () => Term | undefined;
     getCourseById: (id: string) => Course | undefined;
     getSectionById: (id: string) => Section | undefined;
+
+    // Import - tam veri içe aktarma
+    importTerms: (terms: Term[]) => void;
 }
 
 const generateId = () => crypto.randomUUID();
@@ -339,6 +342,43 @@ export const useStore = create<AppState>()(
                     }
                 }
                 return undefined;
+            },
+
+            importTerms: (importedTerms) => {
+                // Her dönem için yeni UUID'ler oluştur (çakışma önleme)
+                const processedTerms = importedTerms.map(term => {
+                    const newTermId = generateId();
+                    return {
+                        ...term,
+                        id: newTermId,
+                        name: `${term.name} (İçe Aktarıldı)`,
+                        courses: term.courses.map(course => {
+                            const newCourseId = generateId();
+                            return {
+                                ...course,
+                                id: newCourseId,
+                                sections: course.sections.map(section => {
+                                    const newSectionId = generateId();
+                                    return {
+                                        ...section,
+                                        id: newSectionId,
+                                        courseId: newCourseId,
+                                        meetings: section.meetings.map(meeting => ({
+                                            ...meeting,
+                                            id: generateId(),
+                                            sectionId: newSectionId,
+                                        })),
+                                    };
+                                }),
+                            };
+                        }),
+                    };
+                });
+
+                set((state) => ({
+                    terms: [...state.terms, ...processedTerms],
+                    activeTermId: processedTerms.length > 0 ? processedTerms[0].id : state.activeTermId,
+                }));
             },
         }),
         {

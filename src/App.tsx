@@ -69,6 +69,58 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        // Allow Escape to work in inputs to close modals
+        if (e.key !== 'Escape') return;
+      }
+
+      // Ctrl+N: trigger add course (dispatch custom event)
+      if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        if (activeTermId) {
+          // Dispatch custom event that CourseList will listen to
+          window.dispatchEvent(new CustomEvent('open-add-course'));
+        }
+      }
+
+      // Ctrl+G: Generate combinations
+      if (e.ctrlKey && e.key === 'g') {
+        e.preventDefault();
+        if (activeTermId && hasCoursesWithSections && !isGenerating) {
+          handleGenerate();
+        }
+      }
+
+      // Ctrl+E: Open export modal
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        setIsExportModalOpen(true);
+      }
+
+      // Escape: Close modals
+      if (e.key === 'Escape') {
+        if (isExportModalOpen) {
+          setIsExportModalOpen(false);
+        }
+        if (isAddingTerm) {
+          setIsAddingTerm(false);
+        }
+        if (isSettingsOpen) {
+          setIsSettingsOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeTermId, hasCoursesWithSections, isGenerating, isExportModalOpen, isAddingTerm, isSettingsOpen]);
+
+
   const handleGenerate = () => {
     if (!activeTerm || !hasCoursesWithSections) return;
 

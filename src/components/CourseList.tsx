@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { Button, Input, Select } from './ui';
 import { DayOfWeek, DAY_NAMES, MeetingType, TIME_SLOTS, formatMinutesToTime } from '../types';
@@ -48,6 +48,17 @@ export function CourseList() {
 
     const activeTerm = terms.find((t) => t.id === activeTermId);
     const courses = activeTerm?.courses || [];
+
+    // Listen for keyboard shortcut event (Ctrl+N)
+    useEffect(() => {
+        const handleOpenAddCourse = () => {
+            if (activeTermId) {
+                setIsAddingCourse(true);
+            }
+        };
+        window.addEventListener('open-add-course', handleOpenAddCourse);
+        return () => window.removeEventListener('open-add-course', handleOpenAddCourse);
+    }, [activeTermId]);
 
     const handleAddCourse = () => {
         if (courseForm.code.trim() && courseForm.name.trim() && activeTermId) {

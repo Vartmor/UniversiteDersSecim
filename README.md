@@ -1,6 +1,9 @@
-# UniversiteDersSecim
+# Ders Seçim
 
-Üniversite öğrencileri için akıllı ders programı planlama uygulaması.
+> Üniversite öğrencileri için akıllı ders programı planlama uygulaması
+
+[![Release](https://img.shields.io/github/v/release/Vartmor/UniversiteDersSecim?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
 ## Özellikler
 
@@ -8,64 +11,70 @@
 - **Otomatik Kombinasyon:** Çakışmasız tüm program seçeneklerini otomatik oluşturur
 - **Akıllı Filtreleme:** Erken/geç saat, boş gün, öğle arası gibi filtrelerle daraltın
 - **Skor Sıralaması:** En iyi programları otomatik sıralama
-- **Offline Çalışma:** İnternet bağlantısı gerektirmez, tüm veriler yerel olarak saklanır
+- **Export:** JSON, ICS (takvim), PNG formatlarında dışa aktarma
+- **Klavye Kısayolları:** Ctrl+N, Ctrl+G, Ctrl+E, Esc
+- **Offline Çalışma:** İnternet bağlantısı gerektirmez
 - **Gizlilik:** Hiçbir veri sunucuya gönderilmez
-
-## Ekran Görüntüsü
-
-*Yakında eklenecek*
 
 ## Kurulum
 
-### Geliştirme Ortamı
+### Hazır İndirme (Önerilen)
+
+[**Releases**](https://github.com/Vartmor/UniversiteDersSecim/releases) sayfasından işletim sisteminize uygun dosyayı indirin:
+
+| Platform | Dosya |
+|----------|-------|
+| Windows | `.msi` veya `.exe` |
+| macOS | `.dmg` |
+| Linux | `.deb` veya `.AppImage` |
+
+### Kaynak Koddan Derleme
 
 ```bash
 # Bağımlılıkları yükle
 npm install
 
-# Geliştirme sunucusunu başlat
-npm run dev
-```
-
-### Tauri Masaüstü Uygulaması
-
-```bash
-# Masaüstü uygulamasını geliştirme modunda çalıştır
+# Geliştirme modunda çalıştır
 npm run tauri dev
 
-# Production build oluştur
+# Production build
 npm run tauri build
 ```
+
+**Gereksinimler:**
+- Node.js 18+
+- Rust (rustup ile kurulum)
+- Tauri CLI (`npm install -g @tauri-apps/cli`)
+
+## Kullanım
+
+1. Sol üstten **dönem** oluşturun (örn: "2025-2026 Bahar")
+2. **+ Ders Ekle** butonuyla derslerinizi girin
+3. Her derse **şubeler** ve **ders saatleri** ekleyin
+4. **"Kombinasyonları Oluştur"** butonuna tıklayın
+5. Sağ paneldeki filtrelerle programları daraltın
+6. Beğendiğiniz programları **yıldız** ile işaretleyin
+7. **Dışa Aktar** ile JSON/ICS/PNG olarak kaydedin
+
+### Klavye Kısayolları
+
+| Kısayol | İşlev |
+|---------|-------|
+| `Ctrl+N` | Yeni ders ekle |
+| `Ctrl+G` | Kombinasyon oluştur |
+| `Ctrl+E` | Dışa aktar |
+| `Esc` | Modal kapat |
 
 ## Teknolojiler
 
 - **Frontend:** React 19 + TypeScript + Tailwind CSS
 - **Backend:** Tauri v2 (Rust)
-- **State Management:** Zustand (localStorage persistance)
+- **State:** Zustand (localStorage persistence)
 
-## Kullanım
+## Katkıda Bulunma
 
-1. Sol panelden **dönem** oluşturun (örn: "2025-2026 Bahar")
-2. **Ders ekle** butonuyla derslerinizi girin
-3. Her derse **şubeler** ve **ders saatleri** ekleyin
-4. **"Kombinasyonları Oluştur"** butonuna tıklayın
-5. Sağ paneldeki filtrelerle programları daraltın
-6. Beğendiğiniz programları **yıldız** ile işaretleyin
-
-## İlerleme Durumu
-
-- [x] Sprint 1: Çekirdek (veri modeli, UI, CRUD)
-- [x] Sprint 2: Motor (kombinasyon algoritması)
-- [x] Sprint 3: Filtre & Skor (kısmen)
-- [ ] Sprint 4: Export (JSON/PNG/ICS)
-- [ ] Sprint 5: Release
-
-Detaylı plan için: [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
+Pull request'lerinizi bekliyoruz!
 
 ## Lisans
 
-MIT
-
-## Yazar
-
-**Muhammed Köseoğlu**
+MIT © [Muhammed Köseoğlu](https://github.com/Vartmor)

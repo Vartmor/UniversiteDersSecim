@@ -721,38 +721,40 @@ gantt
 
 ---
 
-#### Sprint 4: Export & Polish (DEVAM EDİYOR)
+#### Sprint 4: Export & Polish (TAMAMLANDI)
 
-- [ ] **Import/Export**
-  - [ ] JSON export
-  - [ ] JSON import
-  - [ ] ICS takvim export
-  - [ ] PNG export (canvas)
+- [x] **Import/Export**
+  - [x] JSON export
+  - [x] JSON import (tam veri aktarımı ile)
+  - [x] ICS takvim export
+  - [x] PNG export (canvas)
 
-- [ ] **UX Polishing**
-  - [ ] Klavye kısayolları
-  - [ ] Form validasyonları
-  - [ ] Loading states
-  - [ ] Error handling
+- [x] **UX Polishing**
+  - [x] Klavye kısayolları (Ctrl+N, Ctrl+G, Ctrl+E, Esc)
+  - [x] Form validasyonları (saat kontrolü)
+  - [x] Loading states
+  - [x] Error handling (toast mesajları)
 
 ---
 
-#### Sprint 5: Release (1-2 Hafta)
 
-- [ ] **CI/CD Pipeline**
-  - [ ] GitHub Actions workflow
-  - [ ] Lint + test automation
-  - [ ] Multi-platform build
+#### Sprint 5: Release (TAMAMLANDI)
 
-- [ ] **Dokümantasyon**
-  - [ ] README güncelleme
-  - [ ] Demo GIF oluşturma
-  - [ ] Kurulum talimatları
+- [x] **CI/CD Pipeline**
+  - [x] GitHub Actions workflow (release.yml)
+  - [x] Multi-platform build (Windows, macOS, Linux)
+  - [x] Otomatik release oluşturma
+
+- [x] **Dokümantasyon**
+  - [x] README güncelleme
+  - [ ] Demo GIF oluşturma (kullanıcı tarafından yapılacak)
+  - [x] Kurulum talimatları
+  - [x] CONTRIBUTING.md
 
 - [ ] **İlk Release**
-  - [ ] v0.1.0 tag
-  - [ ] Release notes
-  - [ ] Duyuru
+  - [ ] v0.1.0 tag (`git tag v0.1.0 && git push origin v0.1.0`)
+  - [ ] GitHub Actions otomatik release oluşturacak
+
 
 ---
 

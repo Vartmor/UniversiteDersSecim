@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button, Modal } from './ui';
 import { useStore } from '../store';
-import { exportToJSON, importFromJSON, exportToICS, downloadFile, readFile } from '../lib/export';
+import { exportToJSON, importFromJSON, exportToICS, exportToPNG, downloadFile, downloadBlobFile, readFile } from '../lib/export';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -45,6 +45,22 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
         downloadFile(ics, filename, 'text/calendar');
     };
 
+    // PNG Export
+    const handleExportPNG = async () => {
+        if (!selectedSchedule || !activeTerm) {
+            setImportError('Önce bir kombinasyon seçin');
+            return;
+        }
+
+        try {
+            const blob = await exportToPNG(selectedSchedule, courses, activeTerm.name);
+            const filename = `${activeTerm.name.replace(/\s+/g, '-')}-program.png`;
+            downloadBlobFile(blob, filename);
+        } catch (error) {
+            setImportError('PNG oluşturulurken hata oluştu');
+        }
+    };
+
     // JSON Import
     const handleImportClick = () => {
         fileInputRef.current?.click();
@@ -61,19 +77,18 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             const content = await readFile(file);
             const importedTerms = importFromJSON(content);
 
-            // Store'a ekle
-            const addTerm = useStore.getState().addTerm;
+            // Store'a tam veri olarak ekle
+            const importTerms = useStore.getState().importTerms;
+            importTerms(importedTerms);
 
-            // Her dönem için
-            for (const term of importedTerms) {
-                // Yeni dönem oluştur
-                addTerm(`${term.name} (İçe Aktarıldı)`);
+            // Başarı mesajı
+            const totalCourses = importedTerms.reduce((sum, t) => sum + t.courses.length, 0);
+            const totalSections = importedTerms.reduce((sum, t) =>
+                sum + t.courses.reduce((s, c) => s + c.sections.length, 0), 0);
 
-                // Not: Şu anki implementasyon sadece yeni dönem oluşturur
-                // Tam import için daha detaylı bir yapı gerekir
-            }
-
-            setImportStatus(`${importedTerms.length} dönem başarıyla içe aktarıldı!`);
+            setImportStatus(
+                `${importedTerms.length} dönem, ${totalCourses} ders, ${totalSections} şube başarıyla içe aktarıldı!`
+            );
         } catch (error) {
             setImportError(error instanceof Error ? error.message : 'Dosya içe aktarılamadı');
         }
@@ -83,6 +98,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             fileInputRef.current.value = '';
         }
     };
+
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Dışa/İçe Aktar">
@@ -135,6 +151,27 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             disabled={!selectedSchedule}
                         >
                             ICS İndir
+                        </Button>
+                        {!selectedSchedule && (
+                            <p className="text-xs text-warning mt-2">
+                                Önce bir kombinasyon seçin
+                            </p>
+                        )}
+                    </div>
+
+                    {/* PNG Export */}
+                    <div className="p-4 bg-bg-secondary rounded-lg">
+                        <h3 className="font-medium text-text-primary mb-2">Görsel (PNG)</h3>
+                        <p className="text-sm text-text-secondary mb-3">
+                            Seçili programı görsel olarak dışa aktarın.
+                            Haftalık tablonuz PNG formatında indirilir.
+                        </p>
+                        <Button
+                            variant="primary"
+                            onClick={handleExportPNG}
+                            disabled={!selectedSchedule}
+                        >
+                            PNG İndir
                         </Button>
                         {!selectedSchedule && (
                             <p className="text-xs text-warning mt-2">
