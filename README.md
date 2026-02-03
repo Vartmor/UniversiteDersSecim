@@ -37,9 +37,19 @@ Bu uygulama tamamen çevrimdışı çalışır. Girdiğiniz tüm veriler yalnız
 
 ## Kurulum
 
-### Hazır Yükleyici İndirme (Önerilen)
+### Web Versiyonu (Kurulum Gerektirmez)
 
-Uygulamayı kullanmaya başlamak için aşağıdaki adımları izleyin:
+Uygulamayı tarayıcınızda hemen kullanmaya başlayabilirsiniz:
+
+**[https://vartmor.github.io/UniversiteDersSecim/](https://vartmor.github.io/UniversiteDersSecim/)**
+
+Web versiyonu tüm özellikleri destekler. Verileriniz tarayıcınızın yerel depolama alanında saklanır.
+
+---
+
+### Masaüstü Uygulaması İndirme
+
+Uygulamayı bilgisayarınıza kurmak için aşağıdaki adımları izleyin:
 
 1. [Releases](https://github.com/Vartmor/UniversiteDersSecim/releases) sayfasına gidin.
 2. En son sürümü bulun.
