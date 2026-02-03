@@ -2,9 +2,10 @@
 
 Üniversite öğrencileri için geliştirilmiş, çakışmasız ders programı kombinasyonları oluşturan masaüstü uygulaması.
 
+[![Demo](https://img.shields.io/badge/Demo-Web%20Versiyonu-ff6b6b?style=flat-square)](https://vartmor.github.io/UniversiteDersSecim/)
 [![Release](https://img.shields.io/github/v/release/Vartmor/UniversiteDersSecim?style=flat-square&color=0ea5e9)](https://github.com/Vartmor/UniversiteDersSecim/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blueviolet?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Web-blueviolet?style=flat-square)](https://github.com/Vartmor/UniversiteDersSecim/releases)
 
 ---
 
