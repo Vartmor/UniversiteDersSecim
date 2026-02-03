@@ -30,18 +30,36 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${{ steps.get_version.outputs.VERSION }}`,
               name: `Ders Seçim v${{ steps.get_version.outputs.VERSION }}`,
-              body: `## Ders Seçim v${{ steps.get_version.outputs.VERSION }}
-              
-            ### Yenilikler
-            - Üniversite ders programı planlama uygulaması
-            - Çakışmasız program kombinasyonları oluşturma
-            - JSON, ICS, PNG export
-            - Filtre ve skorlama sistemi
-            
-            ### Kurulum
-            - **Windows:** \`.msi\` veya \`.exe\` dosyasını indirin ve çalıştırın
-            - **macOS:** \`.dmg\` dosyasını indirin ve uygulamayı Applications'a sürükleyin
-            - **Linux:** \`.deb\` veya \`.AppImage\` dosyasını indirin
+              body: `# Ders Seçim v${{ steps.get_version.outputs.VERSION }}
+
+            Üniversite öğrencileri için akıllı ders programı planlama uygulaması.
+
+            ## 📥 İndirme
+
+            ### 🪟 Windows
+            | Dosya | Açıklama |
+            |-------|----------|
+            | \`.msi\` | Yükleyici (önerilen) |
+            | \`.exe\` | NSIS yükleyici |
+
+            ### 🍎 macOS
+            | Dosya | Açıklama |
+            |-------|----------|
+            | \`_aarch64.dmg\` | Apple Silicon (M1/M2/M3) |
+            | \`_x64.dmg\` | Intel Mac |
+
+            ### 🐧 Linux
+            | Dosya | Açıklama |
+            |-------|----------|
+            | \`.deb\` | Debian/Ubuntu |
+            | \`.AppImage\` | Tüm dağıtımlar |
+
+            ## ✨ Özellikler
+            - Çakışmasız program kombinasyonları otomatik oluşturma
+            - Akıllı filtreleme ve skorlama
+            - JSON, ICS (takvim), PNG export
+            - Klavye kısayolları (Ctrl+N, Ctrl+G, Ctrl+E)
+            - Offline çalışma, gizlilik odaklı
             `,
               draft: true,
               prerelease: false
