@@ -166,7 +166,7 @@ Bu proje açık kaynak kodludur. Hata bildirimi, özellik önerisi veya kod katk
 
 ## Lisans
 
-Bu proje açık kaynaklıdır. Detaylar için LICENSE dosyasına bakınız.
+Bu proje GNU General Public License v3.0 altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
 
 ---
 
