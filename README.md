@@ -15,26 +15,6 @@
 
 ---
 
-## Uygulama Nedir?
-
-Üniversite Ders Seçim, öğrencilerin dönemlik ders programlarını planlamalarına yardımcı olan bir masaüstü uygulamasıdır. Uygulama, girdiğiniz derslerin tüm şubelerini ve ders saatlerini analiz ederek çakışmayan tüm olası program kombinasyonlarını otomatik olarak oluşturur.
-
-### Temel Özellikler
-
-- **Dönem ve Ders Yönetimi:** Birden fazla dönem oluşturabilir, her döneme istediğiniz kadar ders ekleyebilirsiniz.
-- **Şube ve Saat Tanımlama:** Her ders için birden fazla şube tanımlayabilir, her şubeye haftalık ders saatlerini girebilirsiniz.
-- **Otomatik Kombinasyon Oluşturma:** Uygulama, tüm şube ve saat bilgilerini kullanarak çakışmayan program kombinasyonlarını saniyeler içinde hesaplar.
-- **Akıllı Filtreleme:** Oluşturulan kombinasyonları çeşitli kriterlere göre filtreleyebilirsiniz (erken dersler, geç dersler, boş günler, öğle arası vb.).
-- **Skor Sistemi:** Her kombinasyon, tercihlerinize göre puanlanır ve en uygun programlar üst sıralarda gösterilir.
-- **Favoriler:** Beğendiğiniz programları yıldızlayarak favorilere ekleyebilirsiniz.
-- **Dışa Aktarma:** Seçtiğiniz programı JSON, ICS (takvim) veya PNG formatında dışa aktarabilirsiniz.
-
-### Gizlilik ve Güvenlik
-
-Bu uygulama tamamen çevrimdışı çalışır. Girdiğiniz tüm veriler yalnızca kendi bilgisayarınızda saklanır, hiçbir veri internet üzerinden herhangi bir sunucuya gönderilmez.
-
----
-
 ## Kurulum
 
 ### Web Versiyonu (Kurulum Gerektirmez)
@@ -100,6 +80,26 @@ npm run tauri dev
 # 4. Veya production build oluşturun
 npm run tauri build
 ```
+
+---
+
+## Uygulama Nedir?
+
+Üniversite Ders Seçim, öğrencilerin dönemlik ders programlarını planlamalarına yardımcı olan bir masaüstü uygulamasıdır. Uygulama, girdiğiniz derslerin tüm şubelerini ve ders saatlerini analiz ederek çakışmayan tüm olası program kombinasyonlarını otomatik olarak oluşturur.
+
+### Temel Özellikler
+
+- **Dönem ve Ders Yönetimi:** Birden fazla dönem oluşturabilir, her döneme istediğiniz kadar ders ekleyebilirsiniz.
+- **Şube ve Saat Tanımlama:** Her ders için birden fazla şube tanımlayabilir, her şubeye haftalık ders saatlerini girebilirsiniz.
+- **Otomatik Kombinasyon Oluşturma:** Uygulama, tüm şube ve saat bilgilerini kullanarak çakışmayan program kombinasyonlarını saniyeler içinde hesaplar.
+- **Akıllı Filtreleme:** Oluşturulan kombinasyonları çeşitli kriterlere göre filtreleyebilirsiniz (erken dersler, geç dersler, boş günler, öğle arası vb.).
+- **Skor Sistemi:** Her kombinasyon, tercihlerinize göre puanlanır ve en uygun programlar üst sıralarda gösterilir.
+- **Favoriler:** Beğendiğiniz programları yıldızlayarak favorilere ekleyebilirsiniz.
+- **Dışa Aktarma:** Seçtiğiniz programı JSON, ICS (takvim) veya PNG formatında dışa aktarabilirsiniz.
+
+### Gizlilik ve Güvenlik
+
+Bu uygulama tamamen çevrimdışı çalışır. Girdiğiniz tüm veriler yalnızca kendi bilgisayarınızda saklanır, hiçbir veri internet üzerinden herhangi bir sunucuya gönderilmez.
 
 ---
 
